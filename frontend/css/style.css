@@ -25,9 +25,9 @@
   --accent-danger: #ef4444;
 
   --gradient-primary: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
-  --gradient-warm:    linear-gradient(135deg, #f97316 0%, #eab308 100%);
-  --gradient-cool:    linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%);
-  --gradient-bg:      linear-gradient(160deg, #e0f2fe 0%, #bae6fd 38%, #a5f3fc 68%, #ecfeff 100%);
+  --gradient-warm: linear-gradient(135deg, #f97316 0%, #eab308 100%);
+  --gradient-cool: linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%);
+  --gradient-bg: linear-gradient(160deg, #e0f2fe 0%, #bae6fd 38%, #a5f3fc 68%, #ecfeff 100%);
 
   --border-subtle: rgba(2, 132, 199, 0.12);
   --border-accent: rgba(2, 132, 199, 0.35);
@@ -50,7 +50,9 @@
 }
 
 /* ─── Reset ─── */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -92,10 +94,23 @@ body::before {
 }
 
 @keyframes floatParticles {
-  0%, 100% { transform: translate(0, 0); }
-  25% { transform: translate(-10px, -15px); }
-  50% { transform: translate(10px, 10px); }
-  75% { transform: translate(-5px, 15px); }
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  25% {
+    transform: translate(-10px, -15px);
+  }
+
+  50% {
+    transform: translate(10px, 10px);
+  }
+
+  75% {
+    transform: translate(-5px, 15px);
+  }
 }
 
 /* ─── Layout ─── */
@@ -129,8 +144,17 @@ body::before {
 }
 
 @keyframes breathe {
-  0%, 100% { opacity: 1; filter: brightness(1); }
-  50% { opacity: 0.9; filter: brightness(1.15); }
+
+  0%,
+  100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+
+  50% {
+    opacity: 0.9;
+    filter: brightness(1.15);
+  }
 }
 
 .app-subtitle {
@@ -208,25 +232,26 @@ body::before {
 }
 
 .btn-primary {
-  background: var(--gradient-primary);
+  background: linear-gradient(135deg, #0284c7 0%, #00aeef 100%);
   color: white;
-  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.35);
+  box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35);
 }
 
 .btn-primary:hover:not(:disabled) {
-  box-shadow: 0 6px 25px rgba(139, 92, 246, 0.5);
+  box-shadow: 0 6px 25px rgba(2, 132, 199, 0.5);
   transform: translateY(-2px);
 }
 
 .btn-secondary {
-  background: var(--bg-glass);
-  color: var(--text-primary);
-  border: 1px solid var(--border-subtle);
+  background: linear-gradient(135deg, #7c85cc 0%, #a3a3cc 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 15px rgba(34, 57, 231, 0.35);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  border-color: var(--border-accent);
-  background: rgba(139, 92, 246, 0.08);
+  background: linear-gradient(135deg, #8c95dc 0%, #b3b3dc 100%);
+  box-shadow: 0 6px 25px rgba(123, 133, 204, 0.5);
 }
 
 .btn-success {
@@ -323,8 +348,15 @@ body::before {
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateX(20px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .player-item:hover {
@@ -422,8 +454,15 @@ body::before {
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ─── Question Display ─── */
@@ -616,8 +655,15 @@ body::before {
 }
 
 @keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .winner-name {
@@ -665,13 +711,26 @@ body::before {
 }
 
 @keyframes toastIn {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes toastOut {
-  from { opacity: 1; }
-  to { opacity: 0; transform: translateY(-20px); }
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
 }
 
 /* ─── Screen Sections ─── */
@@ -768,9 +827,17 @@ body::before {
 }
 
 @keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
-  70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+  }
+
+  70% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
 }
 
 /* ─── Copy button ─── */
@@ -834,10 +901,21 @@ body::before {
 }
 
 @keyframes dots {
-  0% { content: ''; }
-  25% { content: '.'; }
-  50% { content: '..'; }
-  75% { content: '...'; }
+  0% {
+    content: '';
+  }
+
+  25% {
+    content: '.';
+  }
+
+  50% {
+    content: '..';
+  }
+
+  75% {
+    content: '...';
+  }
 }
 
 /* ─── Feature: Spectator Checkbox ─── */
@@ -874,12 +952,12 @@ body::before {
   transition: all var(--transition-fast);
 }
 
-.checkbox-label input:checked + .checkbox-custom {
+.checkbox-label input:checked+.checkbox-custom {
   background: var(--accent-primary);
   border-color: var(--accent-primary);
 }
 
-.checkbox-label input:checked + .checkbox-custom::after {
+.checkbox-label input:checked+.checkbox-custom::after {
   content: '✓';
   color: white;
   font-size: 14px;
@@ -1059,6 +1137,7 @@ body::before {
   border: 1.5px solid rgba(2, 132, 199, 0.15);
   color: var(--text-primary);
 }
+
 .input-field:focus {
   background: #ffffff;
   border-color: var(--accent-primary);
@@ -1132,6 +1211,7 @@ body::before {
 .btn-lg:hover:not(:disabled) {
   transform: translateY(-4px) scale(1.04);
 }
+
 .btn-lg:active:not(:disabled) {
   transform: scale(0.96) !important;
 }
@@ -1143,7 +1223,7 @@ body::before {
   transform: translateX(-6px) scale(1.01);
   box-shadow: var(--shadow-sm);
   transition: transform var(--transition-bounce), box-shadow var(--transition-normal),
-              border-color var(--transition-fast), background var(--transition-fast);
+    border-color var(--transition-fast), background var(--transition-fast);
 }
 
 /* ─── Feature: Category Selection Screen ─── */
@@ -1232,9 +1312,20 @@ body::before {
 
 /* Float-up animation for point badges */
 @keyframes floatUp {
-  0%   { opacity: 1;   transform: translateY(0)    scale(1); }
-  20%  { opacity: 1;   transform: translateY(-8px) scale(1.35); }
-  100% { opacity: 0;   transform: translateY(-45px) scale(0.85); }
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  20% {
+    opacity: 1;
+    transform: translateY(-8px) scale(1.35);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-45px) scale(0.85);
+  }
 }
 
 /* Floating "+N" point element */
@@ -1288,8 +1379,15 @@ body::before {
 }
 
 @keyframes tricksterGlow {
-  0%, 100% { box-shadow: 0 0 18px rgba(245, 158, 11, 0.25), 0 4px 16px rgba(0, 0, 0, 0.04); }
-  50%       { box-shadow: 0 0 35px rgba(245, 158, 11, 0.45), 0 4px 20px rgba(0, 0, 0, 0.06); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 18px rgba(245, 158, 11, 0.25), 0 4px 16px rgba(0, 0, 0, 0.04);
+  }
+
+  50% {
+    box-shadow: 0 0 35px rgba(245, 158, 11, 0.45), 0 4px 20px rgba(0, 0, 0, 0.06);
+  }
 }
 
 /* Trickster badge label */
@@ -1305,4 +1403,38 @@ body::before {
   vertical-align: middle;
   letter-spacing: 0.2px;
   box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+/* ═══════════════════════════════════
+   Create Room Button — Enhanced Sky Blue
+   ═══════════════════════════════════ */
+
+#btn-create-room {
+  background: linear-gradient(135deg, #0ea5e9 0%, #00c4ff 55%, #38bdf8 100%);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: 0.4px;
+  border: none;
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 6px 22px rgba(14, 165, 233, 0.5),
+    0 2px 6px rgba(0, 196, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+#btn-create-room:hover:not(:disabled) {
+  transform: translateY(-4px) scale(1.05) !important;
+  box-shadow:
+    0 14px 36px rgba(14, 165, 233, 0.6),
+    0 4px 12px rgba(0, 196, 255, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  filter: brightness(1.1);
+}
+
+#btn-create-room:active:not(:disabled) {
+  transform: scale(0.95) !important;
+  box-shadow: 0 3px 12px rgba(14, 165, 233, 0.45);
+  filter: brightness(0.96);
+  transition-duration: 70ms;
 }
