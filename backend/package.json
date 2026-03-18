@@ -1,7 +1,7 @@
 {
   "name": "lamma-platform",
   "version": "1.0.0",
-  "description": "منصة لمّة للألعاب الاجتماعية - اللعبة الأولى: كلك",
+  "description": "منصة لمّة للألعاب الاجتماعية - اللعبة الأولى: خَرّاط",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -9,7 +9,12 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "keywords": ["game", "realtime", "multiplayer", "arabic"],
+  "keywords": [
+    "game",
+    "realtime",
+    "multiplayer",
+    "arabic"
+  ],
   "author": "Lamma Team",
   "license": "MIT",
   "dependencies": {
