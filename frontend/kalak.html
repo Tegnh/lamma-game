@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>كلك — لمّة</title>
+  <meta name="description"
+    content="لعبة كلك — اكتب إجابة مزيفة وخلّي الباقي يصدّقوك! لعبة جماعية ممتعة من منصة لمّة." />
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Confetti celebration -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="app-logo">كلك 🎭</div>
+      <div class="app-subtitle">اكتب إجابة مزيفة وخلّي الباقي يصدّقوك!</div>
+    </header>
+
+    <!-- ═══════════════════════════════ -->
+    <!--  SCREEN: JOIN / CREATE ROOM    -->
+    <!-- ═══════════════════════════════ -->
+    <div id="screen-join" class="phase-screen active">
+      <div class="card">
+        <div class="card-title">انضم للعبة</div>
+
+        <div class="input-group">
+          <label class="input-label" for="input-username">اسمك</label>
+          <input type="text" id="input-username" class="input-field" placeholder="أدخل اسمك..." maxlength="15"
+            autocomplete="off" />
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="input-room-code">كود الغرفة (اتركه فارغاً لإنشاء غرفة جديدة)</label>
+          <input type="text" id="input-room-code" class="input-field" placeholder="مثال: ABC123" maxlength="6"
+            autocomplete="off"
+            style="direction: ltr; text-align: center; letter-spacing: 4px; text-transform: uppercase;" />
+        </div>
+
+        <!-- Spectator Checkbox -->
+        <div class="checkbox-group">
+          <label class="checkbox-label" for="input-spectator">
+            <input type="checkbox" id="input-spectator" />
+            <span class="checkbox-custom"></span>
+            الانضمام كشاشة عرض / منظم 📺
+          </label>
+          <div class="checkbox-hint">المراقب يشاهد اللعبة بدون مشاركة في الإجابة أو التصويت</div>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
+          <button id="btn-create-room" class="btn btn-primary btn-lg" style="flex: 1;">
+            إنشاء غرفة 🏠
+          </button>
+          <button id="btn-join-room" class="btn btn-secondary btn-lg" style="flex: 1;">
+            انضمام 🚪
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ -->
+    <!--  SCREEN: LOBBY                 -->
+    <!-- ═══════════════════════════════ -->
+    <div id="screen-lobby" class="phase-screen">
+      <div class="card">
+        <div class="card-title">اللوبي</div>
+
+        <div class="room-code" id="lobby-room-code">------</div>
+
+        <div style="text-align: center; margin-bottom: 1rem;">
+          <button id="btn-copy-code" class="copy-btn">نسخ الكود</button>
+        </div>
+
+        <div style="margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">
+          اللاعبون <span class="status-dot"></span>
+        </div>
+
+        <ul id="lobby-player-list" class="player-list"></ul>
+
+        <!-- ─── Lobby Settings (Host Only) ─── -->
+        <div id="lobby-settings" class="settings-panel hidden">
+          <div class="settings-title">⚙️ إعدادات اللعبة</div>
+
+          <div class="settings-row">
+            <label class="settings-label" for="setting-rounds">عدد الجولات</label>
+            <select id="setting-rounds" class="settings-select">
+              <option value="3">3 جولات</option>
+              <option value="5" selected>5 جولات</option>
+              <option value="7">7 جولات</option>
+              <option value="10">10 جولات</option>
+              <option value="15">15 جولة</option>
+            </select>
+          </div>
+
+          <div class="settings-row">
+            <label class="settings-label" for="setting-answer-time">وقت الإجابة</label>
+            <select id="setting-answer-time" class="settings-select">
+              <option value="30">30 ثانية</option>
+              <option value="45">45 ثانية</option>
+              <option value="60" selected>60 ثانية</option>
+            </select>
+          </div>
+
+          <div class="settings-divider"></div>
+          <div class="settings-label" style="margin-bottom: 0.5rem; text-align: right;">اختر التصنيفات (اتركها فارغة
+            لاختيار الكل):</div>
+
+          <div class="category-grid" id="setting-categories">
+            <label class="category-item"><input type="checkbox" value="جغرافيا" /> 🌍 جغرافيا</label>
+            <label class="category-item"><input type="checkbox" value="حيوانات" /> 🦁 حيوانات</label>
+            <label class="category-item"><input type="checkbox" value="علوم" /> 🔬 علوم</label>
+            <label class="category-item"><input type="checkbox" value="فضاء" /> 🚀 فضاء</label>
+            <label class="category-item"><input type="checkbox" value="تاريخ" /> 🏛️ تاريخ</label>
+            <label class="category-item"><input type="checkbox" value="فن" /> 🎨 فن</label>
+            <label class="category-item"><input type="checkbox" value="دين" /> 🕌 دين</label>
+            <label class="category-item"><input type="checkbox" value="أسئلة غريبة" /> 👽 أسئلة غريبة</label>
+            <label class="category-item"><input type="checkbox" value="أعلام" /> 🏳️ أعلام</label>
+            <label class="category-item"><input type="checkbox" value="تكنولوجيا" /> 💻 تكنولوجيا</label>
+            <label class="category-item"><input type="checkbox" value="كوارث طبيعية" /> 🌋 كوارث طبيعية</label>
+            <label class="category-item"><input type="checkbox" value="أمثال" /> 📜 أمثال</label>
+            <label class="category-item"><input type="checkbox" value="ألغاز" /> 🧩 ألغاز</label>
+            <label class="category-item"><input type="checkbox" name="category" value="شخصيات"> 👤 شخصيات</label>
+            <label class="category-item"><input type="checkbox" name="category" value="لغة وأدب"> 📜 لغة وأدب</label>
+            <label class="category-item"><input type="checkbox" name="category" value=" أسئلة عامة">🧠 أسئلة
+              عامة</label>
+
+
+          </div>
+        </div>
+
+        <!-- Settings display for non-hosts -->
+        <div id="settings-display"></div>
+
+        <div style="margin-top: 1.25rem;">
+          <button id="btn-start-game" class="btn btn-success btn-block btn-lg hidden">
+            ابدأ اللعبة 🎮
+          </button>
+        </div>
+
+        <div class="waiting-indicator" id="lobby-waiting">
+          <span>في انتظار المضيف لبدء اللعبة<span class="waiting-dots"></span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ -->
+    <!--  SCREEN: CATEGORY SELECTION   -->
+    <!-- ═══════════════════════════════ -->
+    <div id="screen-category-selection" class="phase-screen">
+      <div class="card">
+        <span class="round-badge" id="catsel-round-badge">الجولة 1 من 5</span>
+
+        <!-- View A: This player is the chooser -->
+        <div id="catsel-chooser-view" class="hidden">
+          <div class="card-title">اختر تصنيف السؤال! 🎯</div>
+          <div class="catsel-subtitle">دورك — اختر تصنيفاً لهذه الجولة</div>
+          <div id="catsel-buttons" class="catsel-grid"></div>
+          <div id="catsel-error" class="catsel-error hidden"></div>
+        </div>
+
+        <!-- View B: Waiting for another player to choose -->
+        <div id="catsel-waiting-view" class="hidden">
+          <div class="card-title">لحظة صبر... ⏳</div>
+          <div id="catsel-waiting-text" class="waiting-indicator">
+            <span class="waiting-dots"></span>
+          </div>
+        </div>
+
+        <!-- View C: Spectator -->
+        <div id="catsel-spectator-view" class="hidden">
+          <div class="spectator-msg">
+            <span>📺</span>
+            <span id="catsel-spectator-text">اللاعب يختار التصنيف...</span>
+          </div>
+        </div>
+
+        <!-- Timer (shared) -->
+        <div class="timer-container" style="margin-top:1.25rem;">
+          <div class="timer-circle">
+            <svg viewBox="0 0 80 80">
+              <circle class="timer-bg" cx="40" cy="40" r="35"></circle>
+              <circle class="timer-progress" id="catsel-timer-progress" cx="40" cy="40" r="35"></circle>
+            </svg>
+            <span class="timer-text" id="catsel-timer-text">30</span>
+          </div>
+        </div>
+
+        <!-- Force Skip (host only, injected by JS) -->
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ -->
+    <!--  SCREEN: ANSWERING             -->
+    <!-- ═══════════════════════════════ -->
+    <div id="screen-answering" class="phase-screen">
+      <div class="card">
+        <span class="round-badge" id="answering-round-badge">الجولة 1 من 5</span>
+
+        <div class="question-box">
+          <img id="answering-image" class="question-image hidden" alt="صورة السؤال" />
+          <div class="question-text" id="answering-question">السؤال يظهر هنا...</div>
+        </div>
+
+        <!-- Timer -->
+        <div class="timer-container">
+          <div class="timer-circle">
+            <svg viewBox="0 0 80 80">
+              <circle class="timer-bg" cx="40" cy="40" r="35"></circle>
+              <circle class="timer-progress" id="answering-timer-progress" cx="40" cy="40" r="35"></circle>
+            </svg>
+            <span class="timer-text" id="answering-timer-text">60</span>
+          </div>
+        </div>
+
+        <!-- Answer Form -->
+        <div class="answer-area" id="answer-form">
+          <div class="input-group">
+            <label class="input-label" for="input-answer">اكتب إجابة مزيفة مقنعة!</label>
+            <input type="text" id="input-answer" class="input-field" placeholder="إجابتك المزيفة..." maxlength="50"
+              autocomplete="off" />
+          </div>
+          <button id="btn-submit-answer" class="btn btn-primary btn-block">
+            إرسال الإجابة ✍️
+          </button>
+        </div>
+
+        <!-- Correct Guess → Fake Answer Form -->
+        <div class="correct-guess-area hidden" id="correct-guess-form">
+          <div class="correct-guess-msg" id="correct-guess-message">
+            أحسنت! هذه هي الإجابة الصحيحة.
+          </div>
+          <div class="input-group">
+            <label class="input-label" for="input-fake-answer">الآن اكتب إجابة مزيفة لخداع البقية!</label>
+            <input type="text" id="input-fake-answer" class="input-field" placeholder="إجابتك المزيفة..." maxlength="50"
+              autocomplete="off" />
+          </div>
+          <button id="btn-submit-fake" class="btn btn-primary btn-block">
+            إرسال الإجابة المزيفة 🎭
+          </button>
+        </div>
+
+        <!-- Answer Sent Confirmation -->
+        <div class="answer-sent-msg hidden" id="answer-sent">
+          <span class="checkmark">✅</span>
+          تم إرسال إجابتك بنجاح، في انتظار باقي اللاعبين...
+        </div>
+
+        <!-- Spectator View -->
+        <div class="spectator-msg hidden" id="spectator-watching">
+          <span>📺</span>
+          أنت تشاهد كمراقب... اللاعبون يكتبون إجاباتهم
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ -->
+    <!--  SCREEN: VOTING                -->
+    <!-- ═══════════════════════════════ -->
+    <div id="screen-voting" class="phase-screen">
+      <div class="card">
+        <div class="card-title">صوّت! 🗳️</div>
+
+        <div class="question-box">
+          <img id="voting-image" class="question-image hidden" alt="صورة السؤال" />
+          <div class="question-text" id="voting-question">السؤال يظهر هنا...</div>
+        </div>
+
+        <!-- Timer -->
+        <div class="timer-container">
+          <div class="timer-circle">
+            <svg viewBox="0 0 80 80">
+              <circle class="timer-bg" cx="40" cy="40" r="35"></circle>
+              <circle class="timer-progress" id="voting-timer-progress" cx="40" cy="40" r="35"></circle>
+            </svg>
+            <span class="timer-text" id="voting-timer-text">45</span>
+          </div>
+        </div>
+
+        <div style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.75rem;">
+          أي إجابة تعتقد أنها الصحيحة؟
+        </div>
+
+        <div class="voting-options" id="voting-options"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ -->
+    <!--  SCREEN: REVEAL                -->
+    <!-- ═══════════════════════════════ -->
+    <div id="screen-reveal" class="phase-screen">
+      <div class="card">
+        <div class="card-title">الكشف! 🔍</div>
+
+        <div class="question-box">
+          <img id="reveal-image" class="question-image hidden" alt="صورة السؤال" />
+          <div class="question-text" id="reveal-question">السؤال</div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 1rem;">
+          <div style="color: var(--accent-success); font-weight: 700; font-size: 1.15rem;">
+            الإجابة الصحيحة:
+          </div>
+          <div style="font-size: 1.5rem; font-weight: 800; color: var(--text-primary); margin-top: 0.25rem;"
+            id="reveal-correct-answer"></div>
+        </div>
+
+        <div id="reveal-answers"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ -->
+    <!--  SCREEN: SCOREBOARD            -->
+    <!-- ═══════════════════════════════ -->
+    <div id="screen-scoreboard" class="phase-screen">
+      <div class="card">
+        <div class="card-title">لوحة النقاط 📊</div>
+        <ul id="scoreboard-list" class="scoreboard"></ul>
+
+        <div style="margin-top: 1.25rem;">
+          <button id="btn-next-round" class="btn btn-primary btn-block btn-lg hidden">
+            السؤال التالي ➡️
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ -->
+    <!--  SCREEN: GAME END              -->
+    <!-- ═══════════════════════════════ -->
+    <div id="screen-game-end" class="phase-screen">
+      <div class="card game-end-card">
+        <div class="winner-crown">👑</div>
+        <div class="winner-name" id="winner-name">الفائز</div>
+        <div class="winner-label" id="winner-score">0 نقطة</div>
+
+        <div class="section-divider"></div>
+
+        <ul id="final-scores-list" class="scoreboard"></ul>
+
+        <div style="margin-top: 1.5rem;">
+          <button id="btn-back-lobby" class="btn btn-primary btn-block btn-lg">
+            العودة للوبي 🏠
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Audio Elements -->
+  <audio id="audio-tick"    src="/sounds/tick.mp3"    preload="auto"></audio>
+  <audio id="audio-correct" src="/sounds/correct.mp3" preload="auto"></audio>
+  <audio id="audio-reveal"  src="/sounds/reveal.mp3"  preload="auto"></audio>
+  <audio id="audio-button"  src="/sounds/button.mp3"  preload="auto"></audio>
+
+  <!-- Scripts -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/socket-client.js"></script>
+  <script src="js/ui-kalak.js"></script>
+</body>
+
+</html>
