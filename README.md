@@ -2,7 +2,7 @@
 
 **لمّة** هي منصة ألعاب اجتماعية تفاعلية (Multiplayer Web Game) تُلعب عبر الإنترنت في الوقت الفعلي. تعتمد اللعبة الحالية "كلك" على الخداع والمعلومات العامة، حيث يقوم اللاعبون باختراع إجابات مزيفة للأسئلة لمحاولة خداع أصدقائهم وحصد النقاط.
 
-🔗 **رابط اللعبة الحي:** [https://lamma-game.onrender.com](https://lamma-game.onrender.com)
+🔗 **رابط اللعبة :** [https://lamma-game.onrender.com](https://lamma-game.onrender.com)
 
 ---
 

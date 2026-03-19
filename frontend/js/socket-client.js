@@ -189,6 +189,11 @@ class SocketClient {
     this.socket.emit('game:force_skip', { code: this.roomCode });
   }
 
+  selectTeam(teamId) {
+    if (!this.roomCode) return;
+    this.socket.emit('kalak:team_select', { code: this.roomCode, teamId });
+  }
+
   updateSettings(settings) {
     if (!this.roomCode) return;
     this.socket.emit('room:settings_update', { code: this.roomCode, settings });

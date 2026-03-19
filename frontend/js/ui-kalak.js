@@ -5,6 +5,14 @@
 
   const client = window.socketClient;
 
+  // ─── Team metadata (id → display info) ────────────────────────────────────
+  const TEAM_META = {
+    red:    { label: 'الأحمر',  emoji: '🔴', color: '#ef4444', bg: 'rgba(239,68,68,0.1)'  },
+    blue:   { label: 'الأزرق',  emoji: '🔵', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
+    green:  { label: 'الأخضر',  emoji: '🟢', color: '#22c55e', bg: 'rgba(34,197,94,0.1)'  },
+    yellow: { label: 'الأصفر', emoji: '🟡', color: '#eab308', bg: 'rgba(234,179,8,0.1)'  },
+  };
+
   // ─── Category → Emoji map (single source of truth for all screens) ────────
   const CATEGORY_ICONS = {
     'جغرافيا':       '🌍',
@@ -36,7 +44,8 @@
   let awaitingFakeAnswer = false;
   let playerMap = new Map();
   let timerInterval = null;
-  let currentSettings = { totalRounds: 5, answerTime: 60, categories: [] };
+  let currentSettings = { totalRounds: 5, answerTime: 60, categories: [], teamsMode: false, teamsCount: 2 };
+  let myTeamId = null;
   let isInGame = false;
 
   const $ = (sel) => document.querySelector(sel);
@@ -100,6 +109,17 @@
 
     $('#setting-rounds').addEventListener('change', (e) => client.updateSettings({ totalRounds: Number(e.target.value) }));
     $('#setting-answer-time').addEventListener('change', (e) => client.updateSettings({ answerTime: Number(e.target.value) }));
+
+    $('#setting-teams-mode').addEventListener('change', (e) => {
+      const teamsMode = e.target.checked;
+      $('#setting-teams-count-row').classList.toggle('hidden', !teamsMode);
+      client.updateSettings({ teamsMode, teamsCount: Number($('#setting-teams-count').value) });
+    });
+
+    $('#setting-teams-count').addEventListener('change', (e) => {
+      client.updateSettings({ teamsCount: Number(e.target.value) });
+    });
+
     $$('#setting-categories input[type="checkbox"]').forEach(cb => {
       cb.addEventListener('change', () => {
         const selectedCategories = Array.from($$('#setting-categories input[type="checkbox"]:checked')).map(cb => cb.value);
@@ -138,7 +158,10 @@
       isHost = room.hostId === client.getMyId();
 
       const me = room.players.find((p) => p.id === client.getMyId());
-      if (me) isSpectator = me.isSpectator;
+      if (me) {
+        isSpectator = me.isSpectator;
+        if (me.teamId) myTeamId = me.teamId;
+      }
 
       if (room.settings) {
         currentSettings = room.settings;
@@ -222,7 +245,7 @@
       if (message) showToast(message);
     });
 
-    client.on('game:end', ({ finalScores }) => { isInGame = false; renderGameEnd(finalScores); });
+    client.on('game:end', ({ finalScores, teamScores }) => { isInGame = false; renderGameEnd(finalScores, teamScores); });
 
     client.on('room:kicked', ({ message }) => {
       isInGame = false;
@@ -262,6 +285,10 @@
       let badges = '';
       if (player.id === room.hostId) badges += '<span class="player-host-badge">المضيف</span>';
       if (player.isSpectator) badges += '<span class="player-spectator-badge">مراقب</span>';
+      if (player.teamId && TEAM_META[player.teamId]) {
+        const m = TEAM_META[player.teamId];
+        badges += `<span style="font-size:0.73rem;padding:0.18rem 0.55rem;background:${m.bg};color:${m.color};border:1px solid ${m.color};border-radius:9999px;font-weight:700;">${m.emoji} ${m.label}</span>`;
+      }
 
       li.innerHTML = `
         <div class="player-avatar">${avatar}</div>
@@ -296,7 +323,37 @@
       $('#lobby-settings').classList.add('hidden');
       $('#lobby-waiting').classList.remove('hidden');
     }
+    renderTeamPanel(room);
     renderSettingsDisplay(room.settings);
+  }
+
+  function renderTeamPanel(room) {
+    const panel = $('#team-selection-panel');
+    const settings = room.settings || {};
+
+    if (!settings.teamsMode || isSpectator) {
+      panel.classList.add('hidden');
+      return;
+    }
+
+    panel.classList.remove('hidden');
+    const teamIds = ['red', 'blue', 'green', 'yellow'].slice(0, settings.teamsCount || 2);
+    const container = $('#team-buttons');
+    container.innerHTML = '';
+
+    teamIds.forEach(tid => {
+      const meta = TEAM_META[tid];
+      const isSelected = myTeamId === tid;
+      const btn = document.createElement('button');
+      btn.style.cssText = `flex:1;min-width:80px;padding:0.65rem 0.4rem;border:2px solid ${meta.color};border-radius:var(--radius-md);background:${isSelected ? meta.color : meta.bg};color:${isSelected ? '#fff' : meta.color};font-weight:700;font-size:0.95rem;cursor:pointer;transition:all 0.15s;`;
+      btn.textContent = `${meta.emoji} ${meta.label}`;
+      btn.addEventListener('click', () => {
+        myTeamId = tid;
+        client.selectTeam(tid);
+        renderTeamPanel(room);
+      });
+      container.appendChild(btn);
+    });
   }
 
   function renderSettings(settings) {
@@ -306,6 +363,11 @@
       $('#setting-answer-time').value = settings.answerTime;
       const categories = settings.categories || [];
       $$('#setting-categories input[type="checkbox"]').forEach(cb => cb.checked = categories.includes(cb.value));
+
+      const teamsMode = !!settings.teamsMode;
+      $('#setting-teams-mode').checked = teamsMode;
+      $('#setting-teams-count-row').classList.toggle('hidden', !teamsMode);
+      if (settings.teamsCount) $('#setting-teams-count').value = settings.teamsCount;
     }
     renderSettingsDisplay(settings);
   }
@@ -318,7 +380,8 @@
     } else {
       display.classList.remove('hidden');
       const cats = settings.categories && settings.categories.length > 0 ? settings.categories.join('، ') : 'الكل';
-      display.innerHTML = `<div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.75rem;">⚙️ الإعدادات: ${settings.totalRounds} جولات · ${settings.answerTime} ثانية للإجابة<br>موضوعات الجولات: ${cats}</div>`;
+      const teamsInfo = settings.teamsMode ? ` · 🏳️ وضع الفرق (${settings.teamsCount} فرق)` : '';
+      display.innerHTML = `<div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.75rem;">⚙️ الإعدادات: ${settings.totalRounds} جولات · ${settings.answerTime} ثانية للإجابة${teamsInfo}<br>موضوعات الجولات: ${cats}</div>`;
     }
   }
 
@@ -629,16 +692,56 @@
     showScreen(screenScoreboard);
   }
 
-  function renderGameEnd(finalScores) {
+  function renderGameEnd(finalScores, teamScores) {
     clearTimerUI();
     const winner = finalScores[0];
-    const winnerName = getPlayerName(winner.id);
 
-    $('#winner-name').textContent = winnerName;
-    $('#winner-score').textContent = `${winner.score} نقطة`;
+    // Winner header: show winning team if teams mode, else individual winner
+    const crownEl = $('.winner-crown');   // class selector — the element has no id
+    if (teamScores && teamScores.length > 0) {
+      const winTeam = teamScores[0];
+      const meta = TEAM_META[winTeam.id] || { label: winTeam.id, emoji: '🏆', color: '#f59e0b' };
+      if (crownEl) crownEl.textContent = meta.emoji;
+      $('#winner-name').textContent = `فريق ${meta.label}`;
+      $('#winner-score').textContent = `${winTeam.score} نقطة`;
+    } else {
+      if (crownEl) crownEl.textContent = '👑';
+      $('#winner-name').textContent = getPlayerName(winner.id);
+      $('#winner-score').textContent = `${winner.score} نقطة`;
+    }
 
     const list = $('#final-scores-list');
     list.innerHTML = '';
+
+    // Team scores section
+    if (teamScores && teamScores.length > 0) {
+      const teamHeader = document.createElement('li');
+      teamHeader.style.cssText = 'list-style:none;padding:0.45rem 1rem;font-size:0.82rem;font-weight:700;color:var(--text-secondary);letter-spacing:0.5px;';
+      teamHeader.textContent = '🏳️ نتائج الفرق';
+      list.appendChild(teamHeader);
+
+      teamScores.forEach((entry, idx) => {
+        const meta = TEAM_META[entry.id] || { label: entry.id, emoji: '🏳️', color: '#888', bg: 'rgba(0,0,0,0.05)' };
+        const li = document.createElement('li');
+        li.className = 'score-item';
+        li.style.cssText = `animation-delay:${idx * 0.08}s;background:${meta.bg};border-color:${meta.color};`;
+        li.innerHTML = `
+          <span class="score-rank" style="background:${meta.color};font-size:1.1rem;">${meta.emoji}</span>
+          <span class="score-name" style="color:${meta.color};font-weight:700;">فريق ${escapeHtml(meta.label)}</span>
+          <span class="score-points" style="color:${meta.color};">${entry.score}</span>
+        `;
+        list.appendChild(li);
+      });
+
+      const divider = document.createElement('li');
+      divider.style.cssText = 'height:1px;background:var(--border-subtle);margin:0.4rem 0;list-style:none;';
+      list.appendChild(divider);
+
+      const playerHeader = document.createElement('li');
+      playerHeader.style.cssText = 'list-style:none;padding:0.45rem 1rem;font-size:0.82rem;font-weight:700;color:var(--text-secondary);letter-spacing:0.5px;';
+      playerHeader.textContent = '👤 ترتيب اللاعبين';
+      list.appendChild(playerHeader);
+    }
 
     finalScores.forEach((entry, index) => {
       const li = document.createElement('li');

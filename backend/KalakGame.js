@@ -32,6 +32,8 @@ class KalakGame {
       votingTime: 45,
       revealTime: 10,
       categories: [],
+      teamsMode: false,
+      teamsCount: 2,
     };
 
     this.usedQuestionIds = new Set();
@@ -43,6 +45,9 @@ class KalakGame {
     this.correctGuessers = new Set();
     this.spectatorIds = new Set();  // maintained by RoomManager
     this.activePlayers = new Set(); // maintained by RoomManager
+
+    this.teamMap = new Map();    // playerId → teamId (fixed for the game session)
+    this.teamScores = new Map(); // teamId → cumulative score
 
     // Category-selection turn tracking
     this.chooserPlayerId = null;
@@ -68,6 +73,13 @@ class KalakGame {
     }
     if (settings.categories && Array.isArray(settings.categories)) {
       this.settings.categories = settings.categories;
+    }
+    if (typeof settings.teamsMode === 'boolean') {
+      this.settings.teamsMode = settings.teamsMode;
+    }
+    if (settings.teamsCount !== undefined) {
+      const c = Number(settings.teamsCount);
+      if ([2, 3, 4].includes(c)) this.settings.teamsCount = c;
     }
   }
 
@@ -113,6 +125,19 @@ class KalakGame {
     }
 
     this.initScores(activePlayers);
+
+    // Build team map for the session (frozen at start)
+    this.teamMap.clear();
+    this.teamScores.clear();
+    if (this.settings.teamsMode) {
+      for (const player of activePlayers) {
+        if (player.teamId) {
+          this.teamMap.set(player.id, player.teamId);
+          if (!this.teamScores.has(player.teamId)) this.teamScores.set(player.teamId, 0);
+        }
+      }
+    }
+
     this.currentRound = 0;
     this.currentChooserIndex = 0;
     this.nextRound();
@@ -345,9 +370,18 @@ class KalakGame {
     });
 
     const multiplier = this.currentRound === this.settings.totalRounds ? 2 : 1;
-    roundScores.forEach((points, socketId) => {
-      const currentTotal = this.scores.get(socketId) || 0;
-      this.scores.set(socketId, currentTotal + points * multiplier);
+    roundScores.forEach((points, playerId) => {
+      const currentTotal = this.scores.get(playerId) || 0;
+      this.scores.set(playerId, currentTotal + points * multiplier);
+
+      // Accumulate team scores
+      if (this.settings.teamsMode && points > 0) {
+        const teamId = this.teamMap.get(playerId);
+        if (teamId) {
+          const curTeam = this.teamScores.get(teamId) || 0;
+          this.teamScores.set(teamId, curTeam + points * multiplier);
+        }
+      }
     });
 
     const voteDetails = [];
@@ -554,7 +588,12 @@ class KalakGame {
     this.clearTimers();
     this.phase = PHASES.LOBBY;
     const finalScores = this.getScoresArray().sort((a, b) => b.score - a.score);
-    this.io.to(this.roomCode).emit('game:end', { finalScores });
+    const teamScores = this.settings.teamsMode && this.teamScores.size > 0
+      ? Array.from(this.teamScores.entries())
+          .map(([id, score]) => ({ id, score }))
+          .sort((a, b) => b.score - a.score)
+      : null;
+    this.io.to(this.roomCode).emit('game:end', { finalScores, teamScores });
 
     this.currentRound = 0;
     this.chooserPlayerId = null;
@@ -564,6 +603,8 @@ class KalakGame {
     this.votes.clear();
     this.scores.clear();
     this.correctGuessers.clear();
+    this.teamMap.clear();
+    this.teamScores.clear();
     this.isTransitioning = false;
   }
 
@@ -573,6 +614,8 @@ class KalakGame {
     this.votes.clear();
     this.scores.clear();
     this.correctGuessers.clear();
+    this.teamMap.clear();
+    this.teamScores.clear();
     this.currentQuestion = null;
     this.chooserPlayerId = null;
   }

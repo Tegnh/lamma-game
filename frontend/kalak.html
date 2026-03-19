@@ -106,6 +106,23 @@
           </div>
 
           <div class="settings-divider"></div>
+
+          <div class="settings-row">
+            <label class="settings-label" for="setting-teams-mode">🏳️ وضع الفرق</label>
+            <input type="checkbox" id="setting-teams-mode"
+              style="width:20px;height:20px;cursor:pointer;accent-color:var(--accent-primary);" />
+          </div>
+
+          <div id="setting-teams-count-row" class="settings-row hidden">
+            <label class="settings-label" for="setting-teams-count">عدد الفرق</label>
+            <select id="setting-teams-count" class="settings-select">
+              <option value="2" selected>فريقان</option>
+              <option value="3">3 فرق</option>
+              <option value="4">4 فرق</option>
+            </select>
+          </div>
+
+          <div class="settings-divider"></div>
           <div class="settings-label" style="margin-bottom: 0.5rem; text-align: right;">اختر التصنيفات (اتركها فارغة
             لاختيار الكل):</div>
 
@@ -134,6 +151,13 @@
 
         <!-- Settings display for non-hosts -->
         <div id="settings-display"></div>
+
+        <!-- Team Selection Panel (shown when teamsMode is on) -->
+        <div id="team-selection-panel" class="hidden">
+          <div class="settings-divider"></div>
+          <div class="settings-title" style="margin-bottom: 0.5rem;">🏳️ اختر فريقك</div>
+          <div id="team-buttons" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+        </div>
 
         <div style="margin-top: 1.25rem;">
           <button id="btn-start-game" class="btn btn-success btn-block btn-lg hidden">

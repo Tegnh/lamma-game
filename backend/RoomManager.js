@@ -39,7 +39,7 @@ class RoomManager {
       players: new Map(),            // playerId → player object
       game: new KalakGame(this.io, code),
       createdAt: Date.now(),
-      settings: { totalRounds: 5, answerTime: 60, categories: [] },
+      settings: { totalRounds: 5, answerTime: 60, categories: [], teamsMode: false, teamsCount: 2 },
       playedQuestions: Array.isArray(playedQuestions) ? playedQuestions.filter(Number.isInteger) : [],
     };
 
@@ -51,6 +51,7 @@ class RoomManager {
       connected: true,
       isSpectator: !!isSpectator,
       emoji: getRandomEmoji(),
+      teamId: null,
       gracePeriodTimer: null,
     });
 
@@ -103,6 +104,7 @@ class RoomManager {
       connected: true,
       isSpectator: !!isSpectator,
       emoji: getRandomEmoji(),
+      teamId: null,
       gracePeriodTimer: null,
     });
 
@@ -192,6 +194,13 @@ class RoomManager {
       return { error: 'يجب أن يكون هناك 3 لاعبين (غير مراقبين) على الأقل لبدء اللعبة' };
     }
 
+    if (room.settings.teamsMode) {
+      const occupiedTeams = new Set(activePlayers.map(p => p.teamId).filter(Boolean));
+      if (occupiedTeams.size < 2) {
+        return { error: 'في وضع الفرق، يجب توزيع اللاعبين على فريقين مختلفين على الأقل' };
+      }
+    }
+
     room.game.start(activePlayers, room.playedQuestions);
     return { success: true };
   }
@@ -225,6 +234,27 @@ class RoomManager {
     return { success: true };
   }
 
+  // ─── Select Team ───────────────────────────────────────────────────────────
+
+  selectTeam(socket, code, teamId) {
+    const VALID_TEAMS = new Set(['red', 'blue', 'green', 'yellow']);
+    const room = this.rooms.get(code);
+    if (!room) return { error: 'الغرفة غير موجودة' };
+    if (room.game.phase !== 'LOBBY') return { error: 'لا يمكن تغيير الفريق أثناء اللعبة' };
+    if (!VALID_TEAMS.has(teamId)) return { error: 'فريق غير صالح' };
+
+    const playerId = this.getPlayerIdBySocket(socket.id, code);
+    if (!playerId) return { error: 'أنت لست في هذه الغرفة' };
+
+    const player = room.players.get(playerId);
+    if (!player) return { error: 'اللاعب غير موجود' };
+    if (player.isSpectator) return { error: 'المراقبون لا يمكنهم اختيار فريق' };
+
+    player.teamId = teamId;
+    this.broadcastRoomUpdate(room);
+    return { success: true };
+  }
+
   // ─── Update Settings ───────────────────────────────────────────────────────
 
   updateSettings(socket, code, settings) {
@@ -239,6 +269,8 @@ class RoomManager {
       totalRounds: room.game.settings.totalRounds,
       answerTime: room.game.settings.answerTime,
       categories: room.game.settings.categories,
+      teamsMode: room.game.settings.teamsMode,
+      teamsCount: room.game.settings.teamsCount,
     };
 
     this.io.to(room.code).emit('room:settings', room.settings);
@@ -371,6 +403,7 @@ class RoomManager {
           username: player.username,
           isSpectator: player.isSpectator,
           emoji: player.emoji,
+          teamId: player.teamId || null,
         });
       }
     });

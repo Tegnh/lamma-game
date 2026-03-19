@@ -92,6 +92,15 @@ io.on('connection', (socket) => {
     if (result.error) socket.emit('game:error', { message: result.error });
   });
 
+  socket.on('kalak:team_select', ({ code, teamId }) => {
+    if (!code || typeof teamId !== 'string') {
+      socket.emit('game:error', { message: 'بيانات الفريق غير صالحة' });
+      return;
+    }
+    const result = roomManager.selectTeam(socket, code, teamId);
+    if (result.error) socket.emit('game:error', { message: result.error });
+  });
+
   // ─── Game Events ───────────────────────────────────────────────────────────
 
   socket.on('game:answer', ({ code, answer }) => {
