@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>طرّاق — لمّة</title>
+  <meta name="description" content="لعبة طرّاق — اضغط الجرس أول وأجب قبل غيرك! لعبة جماعية ممتعة من منصة لمّة." />
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Confetti celebration -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <style>
+    /* ─── جذور وألوان طرّاق (الأسود والبرتقالي) ─── */
+    :root {
+      --bg-primary: #0d0d0d;
+      --bg-secondary: #0d0d0d;
+      --bg-card: #141414;
+      --bg-card-hover: #1a1a1a;
+      --bg-card-alt: #1a1a1a;
+      --bg-glass: rgba(255, 107, 0, 0.05);
+
+      --text-primary: #ffffff;
+      --text-secondary: #ffb880;
+      --text-muted: #888888;
+
+      --accent-primary: #ff6b00;
+      --accent-primary-light: #ff944d;
+      --accent-secondary: #cc5500;
+
+      --accent-success: #00e676;
+      --accent-warning: #ffb300;
+      --accent-danger: #ff2d2d;
+
+      --gradient-primary: linear-gradient(135deg, #ff6b00 0%, #e65c00 100%);
+      --gradient-warm: linear-gradient(135deg, #ff6b00 0%, #ff944d 100%);
+      --gradient-bg: linear-gradient(160deg, #0d0d0d 0%, #171717 100%);
+
+      --border-subtle: rgba(255, 107, 0, 0.2);
+      --border-accent: rgba(255, 107, 0, 0.5);
+
+      --shadow-sm: 0 2px 8px rgba(255, 107, 0, 0.1);
+      --shadow-md: 0 4px 20px rgba(255, 107, 0, 0.15);
+      --shadow-lg: 0 8px 40px rgba(255, 107, 0, 0.25);
+      --shadow-glow: 0 0 30px rgba(255, 107, 0, 0.4);
+
+      /* زوايا حادة 8px كحد أقصى للبطاقات والأزرار */
+      --radius-sm: 8px;
+      --radius-md: 8px;
+      --radius-lg: 8px;
+      --radius-xl: 8px;
+    }
+
+    /* ─── الخطوط وتغليظ العناوين ─── */
+    .app-logo,
+    .card-title,
+    .round-badge,
+    .winner-name,
+    .timer-text {
+      font-weight: 900 !important;
+    }
+
+    .btn,
+    .input-label,
+    .player-name,
+    .question-text {
+      font-weight: 700 !important;
+    }
+
+    /* ─── زر الجرس ─── */
+    #btn-buzz {
+      width: 160px !important;
+      height: 160px !important;
+      border-radius: 50% !important;
+      background: linear-gradient(135deg, #ff6b00, #e65c00) !important;
+      border: 4px solid #ff944d !important;
+      color: #fff !important;
+      /* الأنيميشن المستمر للإضاءة */
+      animation: pulse-orange 1s infinite alternate !important;
+      transition: transform 0.05s ease !important;
+    }
+
+    @keyframes pulse-orange {
+      0% {
+        box-shadow: 0 0 15px rgba(255, 107, 0, 0.4);
+      }
+
+      100% {
+        box-shadow: 0 0 35px rgba(255, 107, 0, 0.9);
+      }
+    }
+
+    /* وضعية القفل للزر (الرمادي) إذا تعطل الزر أو أُضيف له كلاس */
+    #btn-buzz.locked,
+    #btn-buzz:disabled {
+      background: #333 !important;
+      border-color: #555 !important;
+      box-shadow: none !important;
+      animation: none !important;
+      color: #888 !important;
+      cursor: not-allowed !important;
+      transform: scale(1) !important;
+    }
+
+    /* الضغط الفوري للزر (يتجاوز Inline JS) */
+    #btn-buzz:active:not(:disabled):not(.locked) {
+      transform: scale(0.92) !important;
+    }
+
+    /* ─── العداد SVG ─── */
+    .timer-progress {
+      stroke: #ff6b00 !important;
+    }
+
+    .timer-progress.warning {
+      stroke: #ffb300 !important;
+    }
+
+    .timer-progress.danger {
+      stroke: #ff2d2d !important;
+    }
+
+    /* اهتزاز الرقم إذا أضيفت له class danger (< 4 ثوانٍ) */
+    .timer-text.danger {
+      color: #ff2d2d !important;
+      animation: shake-text 0.4s infinite !important;
+    }
+
+    @keyframes shake-text {
+
+      0%,
+      100% {
+        transform: translate(-50%, -50%) rotate(0deg);
+      }
+
+      25% {
+        transform: translate(-50%, -50%) rotate(-5deg) scale(1.1);
+      }
+
+      75% {
+        transform: translate(-50%, -50%) rotate(5deg) scale(1.1);
+      }
+    }
+
+    /* ─── شاشة BUZZED (بطاقة الاسم) ─── */
+    #buzzed-player-name {
+      display: inline-block;
+      padding: 0.5rem 1.25rem;
+      background: #1a1a1a;
+      border: 2px solid #ff6b00;
+      box-shadow: 0 0 15px rgba(255, 107, 0, 0.6);
+      border-radius: 8px;
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #fff !important;
+      animation: slam-in 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes slam-in {
+      0% {
+        transform: scale(3);
+        opacity: 0;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* ─── شاشة REVEAL ─── */
+    /* كلاس الإجابة الصحيحة */
+    .reveal-correct {
+      animation: flash-green 0.5s ease;
+      background: linear-gradient(135deg, #003d1a, #006b2e) !important;
+      border: 2px solid #00e676 !important;
+      border-radius: 8px;
+    }
+
+    /* كلاس الإجابة الخاطئة */
+    .reveal-wrong {
+      animation: flash-red 0.5s ease;
+      background: linear-gradient(135deg, #3d0000, #6b0000) !important;
+      border: 2px solid #ff2d2d !important;
+      border-radius: 8px;
+    }
+
+    @keyframes flash-green {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.7;
+        background: #00e676;
+      }
+    }
+
+    @keyframes flash-red {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.7;
+        background: #ff2d2d;
+      }
+    }
+
+    /* ─── المشكلة 1: حقول الإدخال ─── */
+    input,
+    textarea {
+      background: #1e1e1e !important;
+      border: 2px solid #ff6b00 !important;
+      color: #ffffff !important;
+      border-radius: 8px !important;
+      padding: 12px 16px !important;
+      font-size: 1rem !important;
+      width: 100% !important;
+      box-sizing: border-box;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #888888 !important;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none !important;
+      border-color: #ff9500 !important;
+      box-shadow: 0 0 12px #ff6b0050 !important;
+    }
+
+    /* الـ checkbox لا يأخذ نفس الأنماط */
+    input[type="checkbox"] {
+      width: 20px !important;
+      height: 20px !important;
+      padding: 0 !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    /* ─── المشكلة 2: زرا إنشاء الغرفة والانضمام ─── */
+    #btn-create-room {
+      background: linear-gradient(135deg, #ff6b00, #cc4400) !important;
+      color: #ffffff !important;
+      border: none !important;
+      border-radius: 8px !important;
+      padding: 14px !important;
+      font-size: 1.1rem !important;
+      font-weight: 900 !important;
+      cursor: pointer !important;
+      width: 100% !important;
+      transition: opacity 0.2s, transform 0.1s !important;
+      box-shadow: 0 0 20px #ff6b0050 !important;
+    }
+
+    #btn-create-room:hover {
+      opacity: 0.9 !important;
+      transform: translateY(-1px) !important;
+    }
+
+    #btn-create-room:active {
+      transform: scale(0.97) !important;
+    }
+
+    #btn-join-room {
+      background: #1e1e1e !important;
+      color: #ff6b00 !important;
+      border: 2px solid #ff6b00 !important;
+      border-radius: 8px !important;
+      padding: 14px !important;
+      font-size: 1.1rem !important;
+      font-weight: 900 !important;
+      cursor: pointer !important;
+      width: 100% !important;
+      transition: background 0.2s, transform 0.1s !important;
+    }
+
+    #btn-join-room:hover {
+      background: #ff6b0015 !important;
+      transform: translateY(-1px) !important;
+    }
+
+    #btn-join-room:active {
+      transform: scale(0.97) !important;
+    }
+
+    /* ─── المشكلة 3: قوائم الإعدادات ─── */
+    select {
+      background: #1e1e1e !important;
+      border: 2px solid #ff6b00 !important;
+      color: #ffffff !important;
+      border-radius: 8px !important;
+      padding: 10px 16px !important;
+      padding-left: 36px !important;
+      font-size: 1rem !important;
+      font-weight: 700 !important;
+      cursor: pointer !important;
+      appearance: none !important;
+      -webkit-appearance: none !important;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23ff6b00' d='M6 8L0 0h12z'/%3E%3C/svg%3E") !important;
+      background-repeat: no-repeat !important;
+      background-position: left 12px center !important;
+    }
+
+    select:focus {
+      outline: none !important;
+      box-shadow: 0 0 12px #ff6b0050 !important;
+    }
+
+    select option {
+      background: #1e1e1e;
+      color: #ffffff;
+    }
+
+    /* ─── المشكلة 4: البطاقة الرئيسية ─── */
+    .card {
+      background: #1a1a1a !important;
+      border: 1px solid #ff6b0030 !important;
+      border-radius: 12px !important;
+      padding: 24px !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="app-logo">طرّاق 🔔</div>
+      <div class="app-subtitle">اضغط الجرس أول وأجب قبل غيرك!</div>
+    </header>
+
+    <!-- ═══════════════════════════════ -->
+    <!--  SCREEN: JOIN / CREATE ROOM    -->
+    <!-- ═══════════════════════════════ -->
+    <div id="screen-join" class="phase-screen active">
+      <div class="card">
+        <div class="card-title">انضم للعبة</div>
+
+        <div class="input-group">
+          <label class="input-label" for="input-username">اسمك</label>
+          <input type="text" id="input-username" class="input-field" placeholder="أدخل اسمك..." maxlength="15"
+            autocomplete="off" />
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="input-room-code">كود الغرفة (اتركه فارغاً لإنشاء غرفة جديدة)</label>
+          <input type="text" id="input-room-code" class="input-field" placeholder="مثال: ABC123" maxlength="6"
+            autocomplete="off"
+            style="direction: ltr; text-align: center; letter-spacing: 4px; text-transform: uppercase;" />
+        </div>
+
+        <!-- Spectator Checkbox -->
+        <div class="checkbox-group">
+          <label class="checkbox-label" for="input-spectator">
+            <input type="checkbox" id="input-spectator" />
+            <span class="checkbox-custom"></span>
+            الانضمام كشاشة عرض / منظم 📺
+          </label>
+          <div class="checkbox-hint">المراقب يشاهد اللعبة بدون مشاركة في الإجابة أو التصويت</div>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
+          <button id="btn-create-room" class="btn btn-primary btn-lg" style="flex: 1;">
+            إنشاء غرفة 🏠
+          </button>
+          <button id="btn-join-room" class="btn btn-secondary btn-lg" style="flex: 1;">
+            انضمام 🚪
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ -->
+    <!--  SCREEN: LOBBY                 -->
+    <!-- ═══════════════════════════════ -->
+    <div id="screen-lobby" class="phase-screen">
+      <div class="card">
+        <div class="card-title">اللوبي</div>
+
+        <div class="room-code" id="lobby-room-code">------</div>
+
+        <div style="text-align: center; margin-bottom: 1rem;">
+          <button id="btn-copy-code" class="copy-btn">نسخ الكود</button>
+        </div>
+
+        <div style="margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">
+          اللاعبون <span class="status-dot"></span>
+        </div>
+
+        <ul id="lobby-player-list" class="player-list"></ul>
+
+        <!-- ─── Lobby Settings (Host Only) ─── -->
+        <div id="lobby-settings" class="settings-panel hidden">
+          <div class="settings-title">⚙️ إعدادات اللعبة</div>
+
+          <div class="settings-row">
+            <label class="settings-label" for="setting-total-questions">عدد الأسئلة</label>
+            <select id="setting-total-questions" class="settings-select">
+              <option value="5">5 أسئلة</option>
+              <option value="10" selected>10 أسئلة</option>
+              <option value="15">15 سؤال</option>
+              <option value="20">20 سؤال</option>
+            </select>
+          </div>
+
+          <div class="settings-row">
+            <label class="settings-label" for="setting-answer-mode">طريقة الإجابة</label>
+            <select id="setting-answer-mode" class="settings-select">
+              <option value="auto" selected>تلقائية — الخادم يحكم</option>
+              <option value="manual">يدوية — المضيف يحكم</option>
+            </select>
+          </div>
+
+          <div class="settings-divider"></div>
+
+          <div class="settings-row">
+            <label class="settings-label" for="setting-wrong-penalty">⚠️ عقوبة الإجابة الخاطئة (−1)</label>
+            <input type="checkbox" id="setting-wrong-penalty" checked
+              style="width:20px;height:20px;cursor:pointer;accent-color:var(--accent-primary);" />
+          </div>
+
+          <div class="settings-row">
+            <label class="settings-label" for="setting-second-chance">🔄 فرصة ثانية عند الخطأ (7 ثوانٍ)</label>
+            <input type="checkbox" id="setting-second-chance" checked
+              style="width:20px;height:20px;cursor:pointer;accent-color:var(--accent-primary);" />
+          </div>
+        </div>
+
+        <!-- Settings display for non-hosts -->
+        <div id="settings-display"></div>
+
+        <div style="margin-top: 1.25rem;">
+          <button id="btn-start-game" class="btn btn-success btn-block btn-lg hidden">
+            ابدأ اللعبة 🎮
+          </button>
+        </div>
+
+        <div class="waiting-indicator" id="lobby-waiting">
+          <span>في انتظار المضيف لبدء اللعبة<span class="waiting-dots"></span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ -->
+    <!--  SCREEN: QUESTION              -->
+    <!-- ═══════════════════════════════ -->
+    <div id="screen-question" class="phase-screen">
+      <div class="card">
+        <span class="round-badge" id="question-badge">السؤال 1 من 10</span>
+
+        <div class="question-box">
+          <img id="question-image" class="question-image hidden" alt="صورة السؤال" />
+          <div class="question-text" id="question-text">السؤال يظهر هنا...</div>
+        </div>
+
+        <!-- Circular Timer -->
+        <div class="timer-container">
+          <div class="timer-circle">
+            <svg viewBox="0 0 80 80">
+              <circle class="timer-bg" cx="40" cy="40" r="35"></circle>
+              <circle class="timer-progress" id="question-timer-progress" cx="40" cy="40" r="35"></circle>
+            </svg>
+            <span class="timer-text" id="question-timer-text">15</span>
+          </div>
+        </div>
+
+        <!-- Buzz Button -->
+        <div style="display: flex; justify-content: center; margin-top: 1.25rem;">
+          <button id="btn-buzz" style="
+              width: 140px;
+              height: 140px;
+              min-width: 120px;
+              min-height: 120px;
+              border-radius: 50%;
+              background: var(--accent-primary);
+              border: 4px solid var(--accent-secondary, #e67e22);
+              color: #fff;
+              font-size: 3rem;
+              cursor: pointer;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 0.2rem;
+              box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+              transition: transform 0.1s, box-shadow 0.1s;
+              user-select: none;
+            " onmousedown="this.style.transform='scale(0.93)';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.2)'"
+            onmouseup="this.style.transform='scale(1)';this.style.boxShadow='0 6px 24px rgba(0,0,0,0.25)'"
+            onmouseleave="this.style.transform='scale(1)';this.style.boxShadow='0 6px 24px rgba(0,0,0,0.25)'">
+            <span>🔔</span>
+            <span style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px;">جرس!</span>
+          </button>
+        </div>
+
+        <!-- Spectator View -->
+        <div class="spectator-msg hidden" id="question-spectator-msg">
+          <span>📺</span>
+          أنت تشاهد كمراقب... انتظر من يضغط الجرس
+        </div>
+
+        <!-- Second Chance Banner -->
+        <div id="second-chance-banner" class="hidden" style="
+            margin-top: 1rem;
+            padding: 0.6rem 1rem;
+            background: var(--accent-warning, #f39c12);
+            color: #fff;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+          ">
+          🔄 فرصة ثانية! اضغط الجرس قبل انتهاء الوقت
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ -->
+    <!--  SCREEN: BUZZED                -->
+    <!-- ═══════════════════════════════ -->
+    <div id="screen-buzzed" class="phase-screen">
+      <div class="card">
+        <span class="round-badge" id="buzzed-badge">السؤال 1 من 10</span>
+
+        <!-- Question repeated -->
+        <div class="question-box">
+          <img id="buzzed-image" class="question-image hidden" alt="صورة السؤال" />
+          <div class="question-text" id="buzzed-question-text">السؤال يظهر هنا...</div>
+        </div>
+
+        <!-- Shared Timer -->
+        <div class="timer-container">
+          <div class="timer-circle">
+            <svg viewBox="0 0 80 80">
+              <circle class="timer-bg" cx="40" cy="40" r="35"></circle>
+              <circle class="timer-progress" id="buzzed-timer-progress" cx="40" cy="40" r="35"></circle>
+            </svg>
+            <span class="timer-text" id="buzzed-timer-text">10</span>
+          </div>
+        </div>
+
+        <!-- Buzzer name label (shared) -->
+        <div style="text-align: center; margin: 0.75rem 0; font-size: 1rem; color: var(--text-secondary);">
+          ضغط الجرس: <strong id="buzzed-player-name" style="color: var(--accent-primary);">---</strong>
+        </div>
+
+        <!-- ─── View A: You pressed the bell (auto mode) ─── -->
+        <div id="buzzed-self-view" class="hidden">
+          <div style="
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 1rem;
+          ">
+            🔔 أنت ضغطت الجرس! اكتب إجابتك
+          </div>
+          <div class="input-group">
+            <label class="input-label" for="input-buzz-answer">إجابتك</label>
+            <input type="text" id="input-buzz-answer" class="input-field" placeholder="اكتب إجابتك..." maxlength="100"
+              autocomplete="off" />
+          </div>
+          <button id="btn-submit-buzz-answer" class="btn btn-success btn-block btn-lg">
+            إرسال الإجابة ✅
+          </button>
+        </div>
+
+        <!-- ─── View B: You pressed the bell (manual mode) ─── -->
+        <div id="buzzed-self-verbal-view" class="hidden">
+          <div style="
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg-card-alt, var(--bg-secondary));
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-weight: 600;
+          ">
+            🔔 أنت ضغطت الجرس!<br />
+            <span style="color: var(--text-secondary); font-size: 0.9rem; font-weight: 400;">
+              أجب شفهياً — المضيف سيحكم على إجابتك
+            </span>
+          </div>
+        </div>
+
+        <!-- ─── View C: Watching (others / spectators) ─── -->
+        <div id="buzzed-watching-view" class="hidden">
+          <div class="waiting-indicator">
+            <span>في انتظار إجابته<span class="waiting-dots"></span></span>
+          </div>
+        </div>
+
+        <!-- ─── View D: Host judges (manual mode) ─── -->
+        <div id="buzzed-host-view" class="hidden">
+          <div style="
+            text-align: center;
+            padding: 0.75rem;
+            background: var(--bg-card-alt, var(--bg-secondary));
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+          ">
+            أنت المضيف — احكم على إجابة اللاعب
+          </div>
+          <div style="display: flex; gap: 0.75rem;">
+            <button id="btn-judge-correct" class="btn btn-success btn-lg" style="flex: 1;">
+              صحيح ✅
+            </button>
+            <button id="btn-judge-wrong" class="btn btn-danger btn-lg" style="flex: 1;">
+              خطأ ❌
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ -->
+    <!--  SCREEN: REVEAL                -->
+    <!-- ═══════════════════════════════ -->
+    <div id="screen-reveal" class="phase-screen">
+      <div class="card">
+        <div class="card-title" id="reveal-title">النتيجة</div>
+
+        <!-- Result badge -->
+        <div id="reveal-result-badge" style="
+          text-align: center;
+          font-size: 3rem;
+          margin-bottom: 0.5rem;
+        ">—</div>
+
+        <!-- Points delta -->
+        <div id="reveal-points-delta" style="
+          text-align: center;
+          font-size: 1.4rem;
+          font-weight: 800;
+          margin-bottom: 1rem;
+        "></div>
+
+        <!-- Who buzzed -->
+        <div style="text-align: center; color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">
+          اللاعب: <strong id="reveal-player-name">---</strong>
+        </div>
+
+        <!-- Correct answer -->
+        <div style="
+          text-align: center;
+          padding: 0.75rem 1rem;
+          background: var(--bg-card-alt, var(--bg-secondary));
+          border-radius: 10px;
+          margin-bottom: 1.25rem;
+        ">
+          <div style="color: var(--accent-success); font-weight: 700; font-size: 0.95rem; margin-bottom: 0.25rem;">
+            الإجابة الصحيحة:
+          </div>
+          <div style="font-size: 1.5rem; font-weight: 800; color: var(--text-primary);" id="reveal-correct-answer">---
+          </div>
+        </div>
+
+        <!-- Timeout message (no one buzzed) -->
+        <div id="reveal-timeout-msg" class="hidden" style="
+          text-align: center;
+          padding: 0.6rem 1rem;
+          background: var(--bg-card-alt, var(--bg-secondary));
+          border-radius: 8px;
+          color: var(--text-secondary);
+          font-size: 0.95rem;
+          margin-bottom: 1rem;
+        ">
+          ⏰ لم يضغط أحد الجرس — السؤال سقط
+        </div>
+
+        <!-- Mini scores -->
+        <div style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.4rem;">النقاط الحالية:</div>
+        <ul id="reveal-scores-list" class="scoreboard"></ul>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ -->
+    <!--  SCREEN: SCORES                -->
+    <!-- ═══════════════════════════════ -->
+    <div id="screen-scores" class="phase-screen">
+      <div class="card">
+        <div class="card-title">لوحة النقاط 📊</div>
+
+        <span class="round-badge" id="scores-badge">السؤال 1 من 10</span>
+
+        <ul id="scores-list" class="scoreboard"></ul>
+
+        <div style="margin-top: 1.25rem;">
+          <button id="btn-next-question" class="btn btn-primary btn-block btn-lg hidden">
+            السؤال التالي ➡️
+          </button>
+        </div>
+
+        <div class="waiting-indicator" id="scores-waiting">
+          <span>السؤال التالي قادم<span class="waiting-dots"></span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ -->
+    <!--  SCREEN: WINNER                -->
+    <!-- ═══════════════════════════════ -->
+    <div id="screen-winner" class="phase-screen">
+      <div class="card game-end-card">
+        <div class="winner-crown">👑</div>
+        <div class="winner-name" id="winner-name">الفائز</div>
+        <div class="winner-label" id="winner-score">0 نقطة</div>
+
+        <div class="section-divider"></div>
+
+        <ul id="final-scores-list" class="scoreboard"></ul>
+
+        <div style="margin-top: 1.5rem;">
+          <button id="btn-back-lobby" class="btn btn-primary btn-block btn-lg">
+            العودة للوبي 🏠
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Audio Elements -->
+  <audio id="audio-tick" src="/sounds/tick.mp3" preload="auto"></audio>
+  <audio id="audio-buzz" src="/sounds/button.mp3" preload="auto"></audio>
+  <audio id="audio-correct" src="/sounds/correct.mp3" preload="auto"></audio>
+  <audio id="audio-reveal" src="/sounds/reveal.mp3" preload="auto"></audio>
+
+  <!-- Scripts -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/socket-client.js"></script>
+  <script src="js/ui-tarraq.js"></script>
+</body>
+
+</html>

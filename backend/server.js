@@ -5,6 +5,7 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const path = require('path');
 const RoomManager = require('./RoomManager');
+const TarraqGame = require('./TarraqGame');
 
 const PORT = process.env.PORT || 3000;
 
@@ -229,6 +230,81 @@ io.on('connection', (socket) => {
       return;
     }
     room.game.forceSkipPhase();
+  });
+
+  // ─── Tarraq Events ─────────────────────────────────────────────────────────
+
+  // Helper: resolve room + playerId from socket, verify game type
+  function getTarraqContext() {
+    const entry = roomManager.socketToPlayer.get(socket.id);
+    if (!entry) return null;
+    const room = roomManager.getRoom(entry.code);
+    if (!room?.game) return null;
+    return { room, playerId: entry.playerId };
+  }
+
+  socket.on('tarraq:start', (settings) => {
+    const ctx = getTarraqContext();
+    if (!ctx) return;
+    const { room, playerId } = ctx;
+
+    if (room.hostId !== playerId) {
+      socket.emit('game:error', { message: 'فقط المضيف يمكنه بدء اللعبة' });
+      return;
+    }
+
+    const activePlayers = roomManager.getActivePlayers(room);
+    if (activePlayers.length < 2) {
+      socket.emit('game:error', { message: 'يجب أن يكون هناك لاعبان على الأقل' });
+      return;
+    }
+
+    room.game.destroy();
+    room.game = new TarraqGame(io, room.code);
+    roomManager.syncSpectators(room);
+    roomManager.syncActivePlayers(room);
+
+    if (settings && typeof settings === 'object') {
+      room.game.updateSettings(settings);
+    }
+
+    room.game.start(activePlayers, room.playedQuestions || []);
+  });
+
+  socket.on('tarraq:buzz', () => {
+    const ctx = getTarraqContext();
+    if (!ctx || !(ctx.room.game instanceof TarraqGame)) return;
+
+    const result = ctx.room.game.handleBuzz(ctx.playerId);
+    if (result?.error) socket.emit('game:error', { message: result.error });
+  });
+
+  socket.on('tarraq:answer', ({ text }) => {
+    const ctx = getTarraqContext();
+    if (!ctx || !(ctx.room.game instanceof TarraqGame)) return;
+    if (typeof text !== 'string') return;
+
+    const result = ctx.room.game.handleAnswer(ctx.playerId, text);
+    if (result?.error) socket.emit('game:error', { message: result.error });
+  });
+
+  socket.on('tarraq:judge', ({ correct }) => {
+    const ctx = getTarraqContext();
+    if (!ctx || !(ctx.room.game instanceof TarraqGame)) return;
+    if (ctx.room.hostId !== ctx.playerId) return;
+
+    const result = ctx.room.game.judgeAnswer(!!correct);
+    if (result?.error) socket.emit('game:error', { message: result.error });
+  });
+
+  socket.on('tarraq:next', () => {
+    const ctx = getTarraqContext();
+    if (!ctx || !(ctx.room.game instanceof TarraqGame)) return;
+    if (ctx.room.hostId !== ctx.playerId) return;
+    if (ctx.room.game.phase !== 'SCORES') return;
+
+    ctx.room.game.clearTimers();
+    ctx.room.game._onPhaseTimeout();
   });
 
   // ─── Disconnection ─────────────────────────────────────────────────────────
