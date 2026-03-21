@@ -34,6 +34,7 @@ class KalakGame {
       categories: [],
       teamsMode: false,
       teamsCount: 2,
+      maxPlayers: 8,
     };
 
     this.usedQuestionIds = new Set();
@@ -80,6 +81,10 @@ class KalakGame {
     if (settings.teamsCount !== undefined) {
       const c = Number(settings.teamsCount);
       if ([2, 3, 4].includes(c)) this.settings.teamsCount = c;
+    }
+    if (settings.maxPlayers !== undefined) {
+      const v = Number(settings.maxPlayers);
+      if ([0, 2, 4, 6, 8, 10, 12, 16].includes(v)) this.settings.maxPlayers = v;
     }
   }
 
@@ -282,9 +287,9 @@ class KalakGame {
 
     let duration = 0;
     if (phase === PHASES.CATEGORY_SELECTION) duration = CATEGORY_SELECTION_TIME;
-    else if (phase === PHASES.ANSWERING)  duration = this.settings.answerTime;
-    else if (phase === PHASES.VOTING)     duration = this.settings.votingTime;
-    else if (phase === PHASES.REVEAL)     duration = this.settings.revealTime;
+    else if (phase === PHASES.ANSWERING) duration = this.settings.answerTime;
+    else if (phase === PHASES.VOTING) duration = this.settings.votingTime;
+    else if (phase === PHASES.REVEAL) duration = this.settings.revealTime;
 
     if (duration > 0) {
       this.timeLeft = duration;
@@ -570,8 +575,8 @@ class KalakGame {
 
     // activePlayers was already updated by RoomManager.syncActivePlayers before this call
     const activeAnswered = Array.from(this.activePlayers).filter(pid => this.answers.has(pid)).length;
-    const activeVoted   = Array.from(this.activePlayers).filter(pid => this.votes.has(pid)).length;
-    const activeCount   = this.activePlayers.size;
+    const activeVoted = Array.from(this.activePlayers).filter(pid => this.votes.has(pid)).length;
+    const activeCount = this.activePlayers.size;
 
     if (this.phase === PHASES.ANSWERING && activeAnswered >= activeCount) {
       this.clearTimers();
@@ -590,8 +595,8 @@ class KalakGame {
     const finalScores = this.getScoresArray().sort((a, b) => b.score - a.score);
     const teamScores = this.settings.teamsMode && this.teamScores.size > 0
       ? Array.from(this.teamScores.entries())
-          .map(([id, score]) => ({ id, score }))
-          .sort((a, b) => b.score - a.score)
+        .map(([id, score]) => ({ id, score }))
+        .sort((a, b) => b.score - a.score)
       : null;
     this.io.to(this.roomCode).emit('game:end', { finalScores, teamScores });
 

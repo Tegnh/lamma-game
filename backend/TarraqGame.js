@@ -40,6 +40,7 @@ class TarraqGame {
       answerMode: 'auto',   // 'auto' | 'manual'
       wrongPenalty: true,
       secondChance: true,
+      maxPlayers: 8,
     };
 
     // Question management
@@ -86,6 +87,10 @@ class TarraqGame {
     }
     if (typeof settings.secondChance === 'boolean') {
       this.settings.secondChance = settings.secondChance;
+    }
+    if (settings.maxPlayers !== undefined) {
+      const v = Number(settings.maxPlayers);
+      if ([0, 2, 4, 6, 8, 10, 12, 16].includes(v)) this.settings.maxPlayers = v;
     }
   }
 

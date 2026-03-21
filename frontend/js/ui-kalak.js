@@ -44,7 +44,7 @@
   let awaitingFakeAnswer = false;
   let playerMap = new Map();
   let timerInterval = null;
-  let currentSettings = { totalRounds: 5, answerTime: 60, categories: [], teamsMode: false, teamsCount: 2 };
+  let currentSettings = { totalRounds: 5, answerTime: 60, categories: [], teamsMode: false, teamsCount: 2, maxPlayers: 8 };
   let myTeamId = null;
   let isInGame = false;
 
@@ -109,6 +109,7 @@
 
     $('#setting-rounds').addEventListener('change', (e) => client.updateSettings({ totalRounds: Number(e.target.value) }));
     $('#setting-answer-time').addEventListener('change', (e) => client.updateSettings({ answerTime: Number(e.target.value) }));
+    $('#select-max-players').addEventListener('change', (e) => client.updateSettings({ maxPlayers: Number(e.target.value) }));
 
     $('#setting-teams-mode').addEventListener('change', (e) => {
       const teamsMode = e.target.checked;
@@ -368,6 +369,7 @@
       $('#setting-teams-mode').checked = teamsMode;
       $('#setting-teams-count-row').classList.toggle('hidden', !teamsMode);
       if (settings.teamsCount) $('#setting-teams-count').value = settings.teamsCount;
+      if (settings.maxPlayers !== undefined) $('#select-max-players').value = settings.maxPlayers;
     }
     renderSettingsDisplay(settings);
   }
@@ -381,7 +383,8 @@
       display.classList.remove('hidden');
       const cats = settings.categories && settings.categories.length > 0 ? settings.categories.join('، ') : 'الكل';
       const teamsInfo = settings.teamsMode ? ` · 🏳️ وضع الفرق (${settings.teamsCount} فرق)` : '';
-      display.innerHTML = `<div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.75rem;">⚙️ الإعدادات: ${settings.totalRounds} جولات · ${settings.answerTime} ثانية للإجابة${teamsInfo}<br>موضوعات الجولات: ${cats}</div>`;
+      const maxInfo = settings.maxPlayers > 0 ? ` · 👥 الحد الأقصى ${settings.maxPlayers} لاعبين` : ' · 👥 بلا حد للاعبين';
+      display.innerHTML = `<div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.75rem;">⚙️ الإعدادات: ${settings.totalRounds} جولات · ${settings.answerTime} ثانية للإجابة${teamsInfo}${maxInfo}<br>موضوعات الجولات: ${cats}</div>`;
     }
   }
 

@@ -39,7 +39,8 @@ class RoomManager {
       players: new Map(),            // playerId → player object
       game: new KalakGame(this.io, code),
       createdAt: Date.now(),
-      settings: { totalRounds: 5, answerTime: 60, categories: [], teamsMode: false, teamsCount: 2 },
+      settings: { totalRounds: 5, answerTime: 60, categories: [], teamsMode: false, teamsCount: 2, maxPlayers: 8 },
+      maxPlayers: 8,
       playedQuestions: Array.isArray(playedQuestions) ? playedQuestions.filter(Number.isInteger) : [],
     };
 
@@ -80,9 +81,9 @@ class RoomManager {
       return { error: 'اللعبة بدأت بالفعل' };
     }
 
-    if (room.players.size >= 8) {
-      return { error: 'الغرفة ممتلئة (الحد الأقصى 8 لاعبين)' };
-    }
+    const limit = room.maxPlayers;
+    const isFull = limit > 0 && room.players.size >= limit;
+    if (isFull) return { error: 'الغرفة ممتلئة' };
 
     // Reconnect in lobby: player already exists (e.g. refreshed page before game started)
     if (room.players.has(playerId)) {
@@ -265,12 +266,19 @@ class RoomManager {
     if (!playerId || room.hostId !== playerId) return { error: 'فقط المضيف يمكنه تغيير الإعدادات' };
 
     room.game.updateSettings(settings);
+
+    if (settings.maxPlayers !== undefined) {
+      const v = Number(settings.maxPlayers);
+      if ([0, 2, 4, 6, 8, 10, 12, 16].includes(v)) room.maxPlayers = v;
+    }
+
     room.settings = {
       totalRounds: room.game.settings.totalRounds,
       answerTime: room.game.settings.answerTime,
       categories: room.game.settings.categories,
       teamsMode: room.game.settings.teamsMode,
       teamsCount: room.game.settings.teamsCount,
+      maxPlayers: room.maxPlayers,
     };
 
     this.io.to(room.code).emit('room:settings', room.settings);

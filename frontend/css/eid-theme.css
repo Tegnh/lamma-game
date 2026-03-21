@@ -1,0 +1,428 @@
+/* ══════════════════════════════════════════════════════
+   لمّة — ثيم عيد الفطر | Playful Neobrutalism Edition
+   
+   التفعيل: أضف في <head> بعد style.css:
+   <link rel="stylesheet" href="css/eid-theme.css" />
+   
+   الإزالة بعد العيد: احذف السطر أعلاه فقط.
+   ══════════════════════════════════════════════════════ */
+
+:root {
+  --nb-black: #1A1A1A;
+  --nb-cream: #FDF8F2;
+  --nb-green: #A8E6CF;
+  --nb-yellow: #FFD3B6;
+  --nb-green-dark: #6BCB9E;
+  --nb-yellow-dark: #FFAE7E;
+  --nb-border: 3px solid #1A1A1A;
+  --nb-shadow: 5px 5px 0px #1A1A1A;
+  --nb-shadow-sm: 3px 3px 0px #1A1A1A;
+  --nb-radius-card: 16px;
+  --nb-radius-pill: 50px;
+
+  --bg-primary: #FDF8F2;
+  --bg-secondary: #FDF8F2;
+  --bg-card: #FDF8F2;
+  --bg-card-hover: #faf4ea;
+  --bg-glass: rgba(26, 26, 26, 0.04);
+  --text-primary: #1A1A1A;
+  --text-secondary: #1A1A1A;
+  --text-muted: #555555;
+  --accent-primary: #1A1A1A;
+  --accent-primary-light: #1A1A1A;
+  --accent-secondary: #6BCB9E;
+  --accent-success: #6BCB9E;
+  --accent-warning: #FFAE7E;
+  --accent-danger: #FF6B6B;
+  --gradient-primary: none;
+  --gradient-warm: none;
+  --gradient-cool: none;
+  --gradient-bg: #FDF8F2;
+  --border-subtle: rgba(26, 26, 26, 0.12);
+  --border-accent: rgba(26, 26, 26, 0.4);
+  --shadow-sm: var(--nb-shadow-sm);
+  --shadow-md: var(--nb-shadow);
+  --shadow-lg: 7px 7px 0px #1A1A1A;
+  --shadow-glow: var(--nb-shadow);
+}
+
+body {
+  background: #FDF8F2 !important;
+  background-attachment: unset !important;
+}
+
+body::before {
+  background-image:
+    radial-gradient(circle 20px at 7% 14%, rgba(168, 230, 207, 0.6) 100%, transparent),
+    radial-gradient(circle 14px at 93% 10%, rgba(255, 211, 182, 0.6) 100%, transparent),
+    radial-gradient(circle 24px at 4% 62%, rgba(255, 211, 182, 0.45) 100%, transparent),
+    radial-gradient(circle 16px at 96% 54%, rgba(168, 230, 207, 0.55) 100%, transparent),
+    radial-gradient(circle 20px at 18% 90%, rgba(168, 230, 207, 0.45) 100%, transparent),
+    radial-gradient(circle 12px at 80% 84%, rgba(255, 211, 182, 0.55) 100%, transparent),
+    radial-gradient(circle 10px at 50% 4%, rgba(168, 230, 207, 0.4) 100%, transparent),
+    radial-gradient(circle 18px at 64% 96%, rgba(255, 211, 182, 0.4) 100%, transparent);
+  animation: none !important;
+}
+
+/* ─── بانر العيد ─── */
+.eid-banner {
+  background: var(--nb-green) !important;
+  color: var(--nb-black) !important;
+  text-align: center;
+  padding: 10px 28px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  border-radius: var(--nb-radius-pill);
+  border: var(--nb-border) !important;
+  box-shadow: var(--nb-shadow) !important;
+  max-width: 440px;
+  margin: 16px auto 0;
+  display: block;
+  position: relative;
+}
+
+.eid-banner::before,
+.eid-banner::after {
+  display: none !important;
+}
+
+.eid-banner-text {
+  color: var(--nb-black) !important;
+}
+
+.eid-banner-text .eid-star {
+  animation: none !important;
+  color: var(--nb-black) !important;
+}
+
+/* ─── هيرو ─── */
+.landing-hero h1 {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: var(--nb-black) !important;
+  background-clip: unset !important;
+  color: var(--nb-black) !important;
+  animation: none !important;
+  text-shadow: 4px 4px 0px var(--nb-green) !important;
+}
+
+.landing-hero p {
+  color: #444 !important;
+  font-weight: 600 !important;
+}
+
+/* ─── بطاقات الألعاب ─── */
+.game-card {
+  background: #ffffff !important;
+  border: var(--nb-border) !important;
+  border-radius: var(--nb-radius-card) !important;
+  box-shadow: var(--nb-shadow) !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.game-card::before {
+  display: none !important;
+}
+
+.game-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle 4px at 88% 18%, rgba(168, 230, 207, 0.8) 100%, transparent),
+    radial-gradient(circle 3px at 92% 55%, rgba(255, 211, 182, 0.8) 100%, transparent),
+    radial-gradient(circle 4px at 83% 78%, rgba(168, 230, 207, 0.6) 100%, transparent);
+  pointer-events: none;
+  z-index: 0;
+  border-radius: var(--nb-radius-card);
+}
+
+.game-card>* {
+  position: relative;
+  z-index: 1;
+}
+
+#game-card-kalak {
+  border-top: 6px solid var(--nb-green-dark) !important;
+}
+
+#game-card-tarraq {
+  border-top: 6px solid var(--nb-yellow-dark) !important;
+}
+
+.game-card:hover {
+  transform: translate(-3px, -3px) !important;
+  box-shadow: 8px 8px 0px #1A1A1A !important;
+}
+
+.game-card:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 2px 2px 0px #1A1A1A !important;
+}
+
+.game-card-title {
+  color: var(--nb-black) !important;
+  font-weight: 900 !important;
+}
+
+/* ─── أزرار — إلغاء Gradients ─── */
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-success,
+.btn-danger,
+#btn-create-room,
+#btn-join-room {
+  background: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  filter: none !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+}
+
+.btn-primary,
+#btn-create-room {
+  background: var(--nb-green) !important;
+  color: var(--nb-black) !important;
+  border: var(--nb-border) !important;
+  box-shadow: var(--nb-shadow) !important;
+  font-weight: 800 !important;
+  border-radius: 12px !important;
+}
+
+.btn-primary:hover:not(:disabled),
+#btn-create-room:hover:not(:disabled) {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 7px 7px 0px #1A1A1A !important;
+  filter: none !important;
+}
+
+.btn-primary:active:not(:disabled),
+#btn-create-room:active:not(:disabled) {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 2px 2px 0px #1A1A1A !important;
+}
+
+.btn-secondary,
+#btn-join-room {
+  background: var(--nb-yellow) !important;
+  color: var(--nb-black) !important;
+  border: var(--nb-border) !important;
+  box-shadow: var(--nb-shadow) !important;
+  font-weight: 800 !important;
+  border-radius: 12px !important;
+}
+
+.btn-secondary:hover:not(:disabled),
+#btn-join-room:hover:not(:disabled) {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 7px 7px 0px #1A1A1A !important;
+  filter: none !important;
+}
+
+.btn-secondary:active:not(:disabled),
+#btn-join-room:active:not(:disabled) {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 2px 2px 0px #1A1A1A !important;
+}
+
+.btn-success {
+  background: var(--nb-green) !important;
+  color: var(--nb-black) !important;
+  border: var(--nb-border) !important;
+  box-shadow: var(--nb-shadow) !important;
+  font-weight: 800 !important;
+}
+
+.btn-success:hover:not(:disabled) {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 7px 7px 0px #1A1A1A !important;
+}
+
+.btn-danger {
+  background: #FF6B6B !important;
+  color: var(--nb-black) !important;
+  border: var(--nb-border) !important;
+  box-shadow: var(--nb-shadow) !important;
+}
+
+.btn:disabled {
+  opacity: 0.45 !important;
+  transform: none !important;
+  box-shadow: var(--nb-shadow-sm) !important;
+  cursor: not-allowed !important;
+}
+
+/* ─── Cards ─── */
+.card {
+  background: #ffffff !important;
+  border: var(--nb-border) !important;
+  border-radius: var(--nb-radius-card) !important;
+  box-shadow: var(--nb-shadow) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.card-title {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: var(--nb-black) !important;
+  background-clip: unset !important;
+  color: var(--nb-black) !important;
+}
+
+/* ─── كود الغرفة ─── */
+.room-code {
+  background: var(--nb-green) !important;
+  border: var(--nb-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--nb-shadow-sm) !important;
+  color: var(--nb-black) !important;
+}
+
+/* ─── Inputs ─── */
+.input-field {
+  background: #ffffff !important;
+  border: 2px solid var(--nb-black) !important;
+  color: var(--nb-black) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--nb-shadow-sm) !important;
+}
+
+.input-field:focus {
+  background: #ffffff !important;
+  border: 2px solid var(--nb-black) !important;
+  box-shadow: var(--nb-shadow) !important;
+  outline: none !important;
+}
+
+.input-field::placeholder {
+  color: #888 !important;
+}
+
+select,
+.settings-select {
+  background: #ffffff !important;
+  border: 2px solid var(--nb-black) !important;
+  color: var(--nb-black) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--nb-shadow-sm) !important;
+}
+
+/* ─── Host badge ─── */
+.host-badge {
+  background: var(--nb-yellow) !important;
+  color: var(--nb-black) !important;
+  border: 2px solid var(--nb-black) !important;
+  box-shadow: 2px 2px 0px #1A1A1A !important;
+}
+
+/* ─── Player items ─── */
+.player-item {
+  border: 2px solid var(--nb-black) !important;
+  background: #fafafa !important;
+  box-shadow: 3px 3px 0px #1A1A1A !important;
+}
+
+/* ─── Vote options ─── */
+.vote-option {
+  border: 2px solid var(--nb-black) !important;
+  background: #ffffff !important;
+  box-shadow: var(--nb-shadow-sm) !important;
+  border-radius: 12px !important;
+  transition: transform 0.1s, box-shadow 0.1s !important;
+}
+
+.vote-option:hover:not(:disabled):not(.selected) {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 5px 5px 0px #1A1A1A !important;
+  background: #f9f9f9 !important;
+}
+
+.vote-option.selected {
+  background: var(--nb-green) !important;
+  border-color: var(--nb-black) !important;
+  box-shadow: var(--nb-shadow-sm) !important;
+}
+
+/* ─── Question box ─── */
+.question-box {
+  background: var(--nb-yellow) !important;
+  border: var(--nb-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--nb-shadow) !important;
+}
+
+/* ─── Progress ─── */
+.progress-fill {
+  background: var(--nb-green-dark) !important;
+}
+
+/* ─── Toast ─── */
+.toast {
+  background: #ffffff !important;
+  border: var(--nb-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--nb-shadow) !important;
+  color: var(--nb-black) !important;
+}
+
+/* ─── App logo ─── */
+.app-logo {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: var(--nb-black) !important;
+  background-clip: unset !important;
+  color: var(--nb-black) !important;
+  text-shadow: 4px 4px 0px var(--nb-green) !important;
+  animation: none !important;
+}
+
+.app-subtitle {
+  color: #444 !important;
+}
+
+/* ─── Rank 1 ─── */
+.score-rank-1 {
+  background: var(--nb-green) !important;
+  border: var(--nb-border) !important;
+  box-shadow: var(--nb-shadow) !important;
+}
+
+/* ─── Settings section ─── */
+.settings-section {
+  background: #fafafa !important;
+  border: var(--nb-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--nb-shadow-sm) !important;
+}
+
+.settings-title {
+  color: var(--nb-black) !important;
+}
+
+/* ─── إيقاف النجوم المتساقطة ─── */
+.eid-stars span {
+  animation: none !important;
+  display: none !important;
+}
+
+/* ─── Reduced motion ─── */
+@media (prefers-reduced-motion: reduce) {
+
+  .game-card,
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .vote-option {
+    transition: none !important;
+  }
+
+  .game-card:hover,
+  .btn:hover,
+  .vote-option:hover {
+    transform: none !important;
+  }
+}

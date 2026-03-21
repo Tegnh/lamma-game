@@ -20,6 +20,7 @@
     answerMode:     'auto',
     wrongPenalty:   true,
     secondChance:   true,
+    maxPlayers:     8,
   };
 
   // ─── DOM Shortcuts ────────────────────────────────────────────────────────
@@ -150,6 +151,12 @@
     $('#setting-second-chance').addEventListener('change', (e) => {
       currentSettings.secondChance = e.target.checked;
     });
+
+    $('#select-max-players').addEventListener('change', (e) => {
+      const v = Number(e.target.value);
+      currentSettings.maxPlayers = v;
+      client.updateSettings({ maxPlayers: v });
+    });
   }
 
   function collectSettings() {
@@ -158,6 +165,7 @@
       answerMode:     $('#setting-answer-mode').value,
       wrongPenalty:   $('#setting-wrong-penalty').checked,
       secondChance:   $('#setting-second-chance').checked,
+      maxPlayers:     Number($('#select-max-players').value),
     };
   }
 
@@ -173,6 +181,14 @@
 
       const me = room.players.find((p) => p.id === client.getMyId());
       if (me) isSpectator = me.isSpectator;
+
+      if (room.settings?.maxPlayers !== undefined) {
+        currentSettings.maxPlayers = room.settings.maxPlayers;
+        if (isHost) {
+          const sel = $('#select-max-players');
+          if (sel) sel.value = room.settings.maxPlayers;
+        }
+      }
 
       playerMap.clear();
       room.players.forEach((p) => playerMap.set(p.id, p.username));
@@ -307,11 +323,13 @@
 
     display.classList.remove('hidden');
     const modeLabel = currentSettings.answerMode === 'manual' ? 'يدوية' : 'تلقائية';
+    const maxInfo = currentSettings.maxPlayers > 0 ? `👥 ${currentSettings.maxPlayers} لاعبين` : '👥 بلا حد';
     const parts = [
       `${currentSettings.totalQuestions} أسئلة`,
       `إجابة ${modeLabel}`,
       currentSettings.wrongPenalty ? '⚠️ عقوبة الخطأ' : '',
       currentSettings.secondChance ? '🔄 فرصة ثانية' : '',
+      maxInfo,
     ].filter(Boolean).join(' · ');
     display.innerHTML = `<div style="color:var(--text-secondary);font-size:0.85rem;margin-top:0.75rem;">⚙️ ${parts}</div>`;
   }

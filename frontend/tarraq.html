@@ -5,8 +5,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>طرّاق — لمّة</title>
+  <link rel="stylesheet" href="css/eid-theme.css" />
   <meta name="description" content="لعبة طرّاق — اضغط الجرس أول وأجب قبل غيرك! لعبة جماعية ممتعة من منصة لمّة." />
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/lamma-ui.css" />
+  <script src="js/lamma-ui.js" defer></script>
   <!-- Confetti celebration -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <style>
@@ -325,10 +328,229 @@
       border-radius: 12px !important;
       padding: 24px !important;
     }
+
+    /* ══════════════════════════════════════
+       Issue 2 — Text input fields
+    ══════════════════════════════════════ */
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    .input-field,
+    #input-username,
+    #input-room-code {
+      background: #FFFFFF !important;
+      color: #1A1A1A !important;
+      border: 2px solid #1A1A1A !important;
+      box-shadow: 3px 3px 0px #1A1A1A !important;
+      border-radius: 10px !important;
+      font-size: 1rem !important;
+      font-weight: 600 !important;
+    }
+
+    input[type="text"]::placeholder,
+    input[type="number"]::placeholder,
+    textarea::placeholder,
+    .input-field::placeholder {
+      color: #777777 !important;
+      font-weight: 400 !important;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    textarea:focus,
+    .input-field:focus {
+      background: #FFFFFF !important;
+      border-color: #1A1A1A !important;
+      box-shadow: 5px 5px 0px #1A1A1A !important;
+      outline: none !important;
+    }
+
+    /* ══════════════════════════════════════
+       Issue 3 — Create / Join Room buttons
+       (#btn-buzz orange intentionally kept)
+    ══════════════════════════════════════ */
+    #btn-create-room {
+      background: #A8E6CF !important;
+      color: #1A1A1A !important;
+      border: 3px solid #1A1A1A !important;
+      box-shadow: 4px 4px 0px #1A1A1A !important;
+      border-radius: 12px !important;
+      font-weight: 800 !important;
+      font-size: 1rem !important;
+      font-family: inherit !important;
+      opacity: 1 !important;
+    }
+
+    #btn-join-room {
+      background: #FFD3B6 !important;
+      color: #1A1A1A !important;
+      border: 3px solid #1A1A1A !important;
+      box-shadow: 4px 4px 0px #1A1A1A !important;
+      border-radius: 12px !important;
+      font-weight: 800 !important;
+      font-size: 1rem !important;
+      font-family: inherit !important;
+    }
+
+    #btn-create-room:hover,
+    #btn-join-room:hover {
+      transform: translate(-2px, -2px) !important;
+      box-shadow: 6px 6px 0px #1A1A1A !important;
+      opacity: 1 !important;
+    }
+
+    #btn-create-room:active,
+    #btn-join-room:active {
+      transform: translate(2px, 2px) !important;
+      box-shadow: 1px 1px 0px #1A1A1A !important;
+    }
+
+    /* ══════════════════════════════════════
+       Issue 4 — Settings dropdowns
+       (#setting-total-questions, #setting-answer-mode)
+    ══════════════════════════════════════ */
+    select,
+    .settings-select {
+      background: #FFFFFF !important;
+      color: #1A1A1A !important;
+      border: 2px solid #1A1A1A !important;
+      box-shadow: 3px 3px 0px #1A1A1A !important;
+      border-radius: 10px !important;
+      padding: 10px 14px !important;
+      font-size: 0.95rem !important;
+      font-weight: 600 !important;
+      font-family: inherit !important;
+      appearance: none !important;
+      -webkit-appearance: none !important;
+      background-image: none !important;
+    }
+
+    select option {
+      background: #FFFFFF;
+      color: #1A1A1A;
+    }
+
+    /* ══════════════════════════════════════
+       Steps 2-5 — Light theme override
+       يُعالج الخلفيات الداكنة من الجذر
+    ══════════════════════════════════════ */
+
+    /* Step 3 — Body/page background */
+    body {
+      background: #FDF8F2 !important;
+      background-image: none !important;
+      color: #1A1A1A !important;
+    }
+
+    /* Step 2 — Card / containers: dark → white */
+    .card,
+    [class*="card"],
+    .phase-screen,
+    [id*="screen"] > .card {
+      background: #FFFFFF !important;
+      color: #1A1A1A !important;
+      border: 2px solid #1A1A1A !important;
+      box-shadow: 4px 4px 0px #1A1A1A !important;
+    }
+
+    /* Step 2 — Player items: dark → light grey */
+    .player-item,
+    [class*="player-item"] {
+      background: #F5F5F5 !important;
+      color: #1A1A1A !important;
+    }
+
+    /* Step 2 — Settings sections: dark → warm white */
+    .settings-panel,
+    .settings-section,
+    [class*="settings"] {
+      background: #FFFDF5 !important;
+      color: #1A1A1A !important;
+    }
+
+    /* Step 2 — Override CSS variables used by inline styles
+       (var(--bg-card-alt) and var(--bg-secondary) render dark) */
+    :root {
+      --bg-primary:    #FDF8F2 !important;
+      --bg-secondary:  #FFFFFF !important;
+      --bg-card:       #FFFFFF !important;
+      --bg-card-hover: #F5F5F5 !important;
+      --bg-card-alt:   #F0F0F0 !important;
+      --text-primary:  #1A1A1A !important;
+      --text-secondary: #444444 !important;
+      --text-muted:    #666666 !important;
+    }
+
+    /* Step 4 — Force all text inside cards readable */
+    .card *,
+    .player-item *,
+    .settings-panel *,
+    [id*="screen"] * {
+      color: #1A1A1A !important;
+    }
+
+    /* Step 4 — Exception: buzzer button stays orange + white text */
+    #btn-buzz,
+    #btn-buzz * {
+      color: #FFFFFF !important;
+    }
+
+    /* Step 4 — Exception: buzzed player name badge stays dark */
+    #buzzed-player-name {
+      background: #1A1A1A !important;
+      color: #FFFFFF !important;
+      border: 2px solid #ff6b00 !important;
+      box-shadow: 3px 3px 0px #ff6b00 !important;
+    }
+
+    /* Step 4 — Host badge */
+    .player-host-badge,
+    .host-badge {
+      background: #FFD3B6 !important;
+      color: #1A1A1A !important;
+      border: 2px solid #1A1A1A !important;
+    }
+
+    /* Step 4 — Keep reveal correct/wrong legible */
+    .reveal-correct,
+    .reveal-correct * {
+      color: #FFFFFF !important;
+    }
+
+    .reveal-wrong,
+    .reveal-wrong * {
+      color: #FFFFFF !important;
+    }
+
+    /* Step 5 — Inputs: high-specificity reapply */
+    #screen-lobby input,
+    #screen-join input,
+    #screen-buzzed input,
+    tarraq.html input,
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    .input-field {
+      background: #FFFFFF !important;
+      color: #1A1A1A !important;
+      border: 2px solid #1A1A1A !important;
+      box-shadow: 3px 3px 0px #1A1A1A !important;
+    }
+
+    #screen-lobby select,
+    #screen-join select,
+    select,
+    .settings-select {
+      background: #FFFFFF !important;
+      color: #1A1A1A !important;
+      border: 2px solid #1A1A1A !important;
+      box-shadow: 3px 3px 0px #1A1A1A !important;
+    }
   </style>
 </head>
 
 <body>
+
   <div class="app-container">
 
     <!-- Header -->
@@ -431,6 +653,22 @@
             <label class="settings-label" for="setting-second-chance">🔄 فرصة ثانية عند الخطأ (7 ثوانٍ)</label>
             <input type="checkbox" id="setting-second-chance" checked
               style="width:20px;height:20px;cursor:pointer;accent-color:var(--accent-primary);" />
+          </div>
+
+          <div class="settings-divider"></div>
+
+          <div class="settings-row">
+            <label class="settings-label" for="select-max-players">👥 الحد الأقصى للاعبين</label>
+            <select id="select-max-players" class="settings-select">
+              <option value="2">2 لاعبين</option>
+              <option value="4">4 لاعبين</option>
+              <option value="6">6 لاعبين</option>
+              <option value="8" selected>8 لاعبين</option>
+              <option value="10">10 لاعبين</option>
+              <option value="12">12 لاعباً</option>
+              <option value="16">16 لاعباً</option>
+              <option value="0">بلا حد</option>
+            </select>
           </div>
         </div>
 

@@ -1,0 +1,441 @@
+/* ══════════════════════════════════════════
+   لمّة — Shared UI Components
+   Bottom Nav + Settings Button
+   ══════════════════════════════════════════ */
+
+/* ── Bottom Navigation Bar ── */
+.lamma-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: #FFFFFF;
+  border-top: 3px solid #1A1A1A;
+  box-shadow: 0 -4px 0px #1A1A1A;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 6px 8px 10px;
+  height: 62px;
+  direction: rtl;
+  /* Force visibility on all devices */
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.lamma-nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-family: inherit;
+  color: #444444;
+  font-size: 0.72rem;
+  font-weight: 800;
+  transition: transform 0.1s ease, background 0.1s ease;
+  text-decoration: none;
+  flex: 1;
+  max-width: 72px;
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.lamma-nav-btn:hover {
+  background: #F0F0F0;
+  transform: translateY(-2px);
+}
+
+.lamma-nav-btn:active {
+  transform: scale(0.9);
+  background: #E8E8E8;
+}
+
+.lamma-nav-btn.active {
+  color: #1A1A1A;
+  background: #A8E6CF;
+  border: 2px solid #1A1A1A;
+  box-shadow: 2px 2px 0px #1A1A1A;
+}
+
+.lamma-nav-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  display: block;
+}
+
+.lamma-nav-label {
+  line-height: 1;
+  white-space: nowrap;
+  display: block;
+  font-size: 0.68rem;
+}
+
+/* Home button — center, elevated */
+.lamma-nav-btn.nav-home {
+  background: #A8D8EA;
+  border: 2.5px solid #1A1A1A;
+  box-shadow: 3px 3px 0px #1A1A1A;
+  color: #1A1A1A;
+  transform: translateY(-8px);
+  border-radius: 14px;
+  flex: 0 0 64px;
+  max-width: 64px;
+  min-height: 52px;
+  padding: 8px 10px;
+}
+
+.lamma-nav-btn.nav-home:hover {
+  transform: translateY(-11px);
+  box-shadow: 4px 4px 0px #1A1A1A;
+}
+
+.lamma-nav-btn.nav-home:active {
+  transform: translateY(-4px) scale(0.95);
+  box-shadow: 1px 1px 0px #1A1A1A;
+}
+
+.lamma-nav-btn.nav-home .lamma-nav-icon {
+  font-size: 1.5rem;
+}
+
+/* Body padding */
+body {
+  padding-bottom: 70px !important;
+}
+
+/* ── Mobile fix: force nav visible ── */
+@media (max-width: 768px) {
+  .lamma-bottom-nav {
+    padding: 4px 4px 8px;
+    height: 58px;
+  }
+
+  .lamma-nav-btn {
+    padding: 5px 6px;
+    font-size: 0.65rem;
+    max-width: 64px;
+  }
+
+  .lamma-nav-icon {
+    font-size: 1.25rem;
+  }
+
+  .lamma-nav-label {
+    font-size: 0.6rem;
+  }
+
+  .lamma-nav-btn.nav-home {
+    flex: 0 0 58px;
+    max-width: 58px;
+    min-height: 48px;
+    transform: translateY(-7px);
+  }
+}
+
+@media (max-width: 380px) {
+  .lamma-nav-btn {
+    padding: 4px 4px;
+    max-width: 56px;
+    font-size: 0.58rem;
+  }
+
+  .lamma-nav-icon {
+    font-size: 1.15rem;
+  }
+
+  .lamma-nav-label {
+    font-size: 0.55rem;
+  }
+}
+
+/* ── Settings Button (top-left corner) ── */
+.lamma-settings-btn {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 1001;
+  background: #FFD3B6;
+  border: 2px solid #1A1A1A;
+  box-shadow: 3px 3px 0px #1A1A1A;
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.lamma-settings-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px #1A1A1A;
+}
+
+.lamma-settings-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px #1A1A1A;
+}
+
+/* ── Settings Modal ── */
+.lamma-settings-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 26, 26, 0.55);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+}
+
+.lamma-settings-overlay.open {
+  display: flex;
+}
+
+.lamma-settings-modal {
+  background: #FFFFFF;
+  border: 3px solid #1A1A1A;
+  box-shadow: 7px 7px 0px #1A1A1A;
+  border-radius: 18px;
+  padding: 24px;
+  width: min(340px, calc(100vw - 32px));
+  direction: rtl;
+  animation: modalPop 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalPop {
+  from {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.lamma-settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.lamma-settings-title {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #1A1A1A;
+}
+
+.lamma-settings-close {
+  background: #FF6B6B;
+  border: 2px solid #1A1A1A;
+  box-shadow: 2px 2px 0px #1A1A1A;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  color: #1A1A1A;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.lamma-settings-close:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px #1A1A1A;
+}
+
+.lamma-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 2px solid #F0F0F0;
+}
+
+.lamma-setting-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.lamma-setting-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1A1A1A;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Toggle switch */
+.lamma-toggle {
+  position: relative;
+  width: 50px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.lamma-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.lamma-toggle-track {
+  position: absolute;
+  inset: 0;
+  background: #E0E0E0;
+  border: 2px solid #1A1A1A;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 2px 2px 0px #1A1A1A;
+}
+
+.lamma-toggle input:checked+.lamma-toggle-track {
+  background: #A8E6CF;
+}
+
+.lamma-toggle-track::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
+  background: #1A1A1A;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.lamma-toggle input:checked+.lamma-toggle-track::after {
+  transform: translateX(-24px);
+}
+
+/* Dark mode overrides */
+body.dark-mode {
+  --nb-cream: #1A1A1A;
+  background: #1A1A1A !important;
+  color: #FFFFFF !important;
+}
+
+body.dark-mode .lamma-bottom-nav {
+  background: #2A2A2A;
+  border-top-color: #555;
+  box-shadow: 0 -4px 0px #555;
+}
+
+body.dark-mode .lamma-nav-btn {
+  color: #AAAAAA;
+}
+
+body.dark-mode .lamma-settings-modal {
+  background: #2A2A2A;
+  border-color: #555;
+}
+
+body.dark-mode .lamma-settings-title,
+body.dark-mode .lamma-setting-label {
+  color: #FFFFFF;
+}
+
+/* Modals and overlays */
+.lamma-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 26, 26, 0.55);
+  z-index: 2000;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 72px;
+}
+
+.lamma-modal-overlay.open {
+  display: flex;
+}
+
+.lamma-modal-sheet {
+  background: #FFFFFF;
+  border: 3px solid #1A1A1A;
+  box-shadow: 0 -6px 0px #1A1A1A;
+  border-radius: 20px 20px 0 0;
+  padding: 20px 20px 28px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 70vh;
+  overflow-y: auto;
+  direction: rtl;
+  animation: sheetUp 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes sheetUp {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+.lamma-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #F0F0F0;
+}
+
+.lamma-sheet-title {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #1A1A1A;
+}
+
+.lamma-sheet-close {
+  background: #FF6B6B;
+  border: 2px solid #1A1A1A;
+  box-shadow: 2px 2px 0px #1A1A1A;
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-weight: 900;
+  color: #1A1A1A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lamma-empty-state {
+  text-align: center;
+  color: #888;
+  font-size: 0.9rem;
+  padding: 24px 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .lamma-settings-btn {
+    top: 10px;
+    left: 10px;
+  }
+}

@@ -28,7 +28,7 @@ io.on('connection', (socket) => {
 
   // ─── Room Events ───────────────────────────────────────────────────────────
 
-  socket.on('room:create', ({ username, isSpectator, playerId, playedQuestions }, callback) => {
+  socket.on('room:create', ({ username, isSpectator, playerId, playedQuestions, settings }, callback) => {
     if (!username || typeof username !== 'string') {
       socket.emit('game:error', { message: 'يرجى إدخال اسم صالح' });
       return;
@@ -38,6 +38,17 @@ io.on('connection', (socket) => {
     if (result.error) {
       socket.emit('game:error', { message: result.error });
       return;
+    }
+
+    if (settings?.maxPlayers !== undefined) {
+      const room = roomManager.getRoom(result.room.code);
+      if (room) {
+        const v = Number(settings.maxPlayers);
+        if ([0, 2, 4, 6, 8, 10, 12, 16].includes(v)) {
+          room.maxPlayers = v;
+          room.settings.maxPlayers = v;
+        }
+      }
     }
 
     socket.emit('room:update', result.room);
@@ -266,6 +277,14 @@ io.on('connection', (socket) => {
 
     if (settings && typeof settings === 'object') {
       room.game.updateSettings(settings);
+
+      if (settings.maxPlayers !== undefined) {
+        const v = Number(settings.maxPlayers);
+        if ([0, 2, 4, 6, 8, 10, 12, 16].includes(v)) {
+          room.maxPlayers = v;
+          room.settings.maxPlayers = v;
+        }
+      }
     }
 
     room.game.start(activePlayers, room.playedQuestions || []);

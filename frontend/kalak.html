@@ -10,9 +10,347 @@
   <link rel="stylesheet" href="css/style.css" />
   <!-- Confetti celebration -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <link rel="stylesheet" href="css/eid-theme.css" />
+  <link rel="stylesheet" href="css/lamma-ui.css" />
+  <script src="js/lamma-ui.js" defer></script>
+  <style id="nb-kalak">
+/* ── Neobrutalism Design Tokens ── */
+:root {
+  --nb-black:      #1A1A1A;
+  --nb-cream:      #FDF8F2;
+  --nb-white:      #FFFFFF;
+  --nb-blue:       #A8D8EA;
+  --nb-yellow:     #FFE66D;
+  --nb-green:      #A8E6CF;
+  --nb-coral:      #FFB347;
+  --nb-border:     3px solid #1A1A1A;
+  --nb-shadow:     4px 4px 0px #1A1A1A;
+  --nb-shadow-lg:  6px 6px 0px #1A1A1A;
+  --nb-radius:     12px;
+  --nb-radius-lg:  16px;
+}
+
+/* ── Page Base ── */
+body {
+  background: var(--nb-cream) !important;
+  background-image: none !important;
+  background-attachment: unset !important;
+}
+
+body::before {
+  display: none !important;
+}
+
+/* ── Main App Container ── */
+.app-container,
+[class*="container"],
+[class*="wrapper"] {
+  background: transparent !important;
+}
+
+/* ── Header ── */
+.app-header,
+[class*="header"] {
+  background: var(--nb-white) !important;
+  border-bottom: var(--nb-border) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* ── Round / Score badges ── */
+.round-badge,
+[class*="badge"]:not(.player-host-badge) {
+  background: var(--nb-yellow) !important;
+  border: var(--nb-border) !important;
+  box-shadow: var(--nb-shadow) !important;
+  border-radius: var(--nb-radius) !important;
+  color: var(--nb-black) !important;
+  font-weight: 800 !important;
+}
+
+/* ── Host badge ── */
+.player-host-badge {
+  background: var(--nb-coral) !important;
+  border: var(--nb-border) !important;
+  box-shadow: 2px 2px 0px #1A1A1A !important;
+  color: var(--nb-black) !important;
+  border-radius: 8px !important;
+  font-weight: 800 !important;
+}
+
+/* ── Player items in lobby ── */
+.player-item {
+  background: var(--nb-white) !important;
+  border: var(--nb-border) !important;
+  box-shadow: var(--nb-shadow) !important;
+  border-radius: var(--nb-radius) !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+}
+
+.player-item:hover {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 6px 6px 0px #1A1A1A !important;
+}
+
+/* ── Lobby room code display ── */
+.room-code {
+  background: var(--nb-blue) !important;
+  border: var(--nb-border) !important;
+  box-shadow: var(--nb-shadow-lg) !important;
+  border-radius: var(--nb-radius) !important;
+  color: var(--nb-black) !important;
+  font-weight: 900 !important;
+  text-shadow: none !important;
+}
+
+/* ── General cards ── */
+.card,
+[class*="-card"]:not(.game-card):not(.player-item) {
+  background: var(--nb-white) !important;
+  border: var(--nb-border) !important;
+  box-shadow: var(--nb-shadow) !important;
+  border-radius: var(--nb-radius-lg) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* ── Question Box ── */
+.question-box,
+[class*="question-box"],
+[class*="question-card"] {
+  background: var(--nb-yellow) !important;
+  border: var(--nb-border) !important;
+  box-shadow: var(--nb-shadow-lg) !important;
+  border-radius: var(--nb-radius-lg) !important;
+  color: var(--nb-black) !important;
+}
+
+/* ── Card Titles ── */
+.card-title,
+[class*="card-title"],
+[class*="section-title"] {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: var(--nb-black) !important;
+  background-clip: unset !important;
+  color: var(--nb-black) !important;
+  font-weight: 900 !important;
+}
+
+/* ── All text inputs ── */
+.input-field,
+input[type="text"],
+input[type="number"],
+textarea {
+  background: var(--nb-white) !important;
+  border: 2px solid var(--nb-black) !important;
+  box-shadow: 3px 3px 0px #1A1A1A !important;
+  border-radius: var(--nb-radius) !important;
+  color: var(--nb-black) !important;
+  font-weight: 600 !important;
+  transition: box-shadow 0.1s ease, transform 0.1s ease !important;
+}
+
+.input-field:focus,
+input[type="text"]:focus,
+textarea:focus {
+  background: var(--nb-white) !important;
+  border: 2px solid var(--nb-black) !important;
+  box-shadow: 5px 5px 0px #1A1A1A !important;
+  outline: none !important;
+  transform: translate(-1px, -1px) !important;
+}
+
+.input-field::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: #888888 !important;
+  font-weight: 400 !important;
+}
+
+/* ── Correct guess notification ── */
+.correct-guess-msg,
+[class*="correct-guess"],
+[class*="success-msg"] {
+  background: var(--nb-green) !important;
+  border: var(--nb-border) !important;
+  box-shadow: var(--nb-shadow) !important;
+  border-radius: var(--nb-radius) !important;
+  color: var(--nb-black) !important;
+  font-weight: 700 !important;
+}
+
+/* ── Select dropdowns ── */
+select,
+.settings-select {
+  background: var(--nb-white) !important;
+  border: 2px solid var(--nb-black) !important;
+  box-shadow: 3px 3px 0px #1A1A1A !important;
+  border-radius: var(--nb-radius) !important;
+  color: var(--nb-black) !important;
+  font-weight: 600 !important;
+}
+
+/* ── RESET all gradient buttons ── */
+.btn,
+button,
+[class*="btn-"] {
+  background: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+}
+
+/* ── Primary button: flat blue ── */
+.btn-primary,
+#btn-create-room,
+#btn-start-game,
+[class*="btn-primary"] {
+  background: var(--nb-blue) !important;
+  color: var(--nb-black) !important;
+  border: var(--nb-border) !important;
+  box-shadow: var(--nb-shadow) !important;
+  border-radius: var(--nb-radius) !important;
+  font-weight: 800 !important;
+}
+
+.btn-primary:hover:not(:disabled),
+#btn-create-room:hover:not(:disabled),
+#btn-start-game:hover:not(:disabled) {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 6px 6px 0px #1A1A1A !important;
+}
+
+.btn-primary:active:not(:disabled),
+#btn-create-room:active:not(:disabled) {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 1px 1px 0px #1A1A1A !important;
+}
+
+/* ── Secondary button: flat yellow ── */
+.btn-secondary,
+#btn-join-room,
+[class*="btn-secondary"] {
+  background: var(--nb-yellow) !important;
+  color: var(--nb-black) !important;
+  border: var(--nb-border) !important;
+  box-shadow: var(--nb-shadow) !important;
+  border-radius: var(--nb-radius) !important;
+  font-weight: 800 !important;
+}
+
+.btn-secondary:hover:not(:disabled),
+#btn-join-room:hover:not(:disabled) {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 6px 6px 0px #1A1A1A !important;
+}
+
+/* ── Success button: flat green ── */
+.btn-success {
+  background: var(--nb-green) !important;
+  color: var(--nb-black) !important;
+  border: var(--nb-border) !important;
+  box-shadow: var(--nb-shadow) !important;
+  border-radius: var(--nb-radius) !important;
+  font-weight: 800 !important;
+}
+
+/* ── Danger button ── */
+.btn-danger {
+  background: #FF6B6B !important;
+  color: var(--nb-black) !important;
+  border: var(--nb-border) !important;
+  box-shadow: var(--nb-shadow) !important;
+  border-radius: var(--nb-radius) !important;
+  font-weight: 800 !important;
+}
+
+/* ── Disabled state ── */
+.btn:disabled,
+button:disabled {
+  opacity: 0.4 !important;
+  transform: none !important;
+  box-shadow: 2px 2px 0px #1A1A1A !important;
+  cursor: not-allowed !important;
+}
+
+/* ── Vote option cards ── */
+/* [class*="answer-card"] و [class*="answer-option"] محذوفتان — غير موجودتين في الملف */
+.vote-option {
+  background: var(--nb-white) !important;
+  border: var(--nb-border) !important;
+  box-shadow: var(--nb-shadow) !important;
+  border-radius: var(--nb-radius) !important;
+  color: var(--nb-black) !important;
+  font-weight: 700 !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+}
+
+.vote-option:hover:not(:disabled):not(.selected) {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 6px 6px 0px #1A1A1A !important;
+  background: #f0f0f0 !important;
+}
+
+.vote-option.selected {
+  background: var(--nb-blue) !important;
+  border-color: var(--nb-black) !important;
+  box-shadow: var(--nb-shadow) !important;
+}
+
+/* ── Timer (SVG دائري — لا توجد timer-bar أو progress-track) ── */
+/* .timer-bar / .progress-bar → استُبدلت بـ .timer-progress (SVG stroke)   */
+/* [class*="timer-track"] / [class*="progress-bg"] → .timer-bg (SVG stroke) */
+.timer-progress {
+  stroke: var(--nb-coral) !important;
+}
+
+.timer-bg {
+  stroke: #E0E0E0 !important;
+}
+
+.timer-circle {
+  filter: drop-shadow(2px 2px 0px #1A1A1A) !important;
+}
+
+.timer-text {
+  color: var(--nb-black) !important;
+  font-weight: 900 !important;
+}
+
+/* ── Mobile (375px) ── */
+@media (max-width: 480px) {
+  .card {
+    padding: 16px !important;
+  }
+
+  .btn,
+  button {
+    min-height: 44px !important;
+    font-size: 1rem !important;
+  }
+
+  .card-title {
+    font-size: 1.1rem !important;
+  }
+
+  .question-text {
+    font-size: 1rem !important;
+  }
+
+  .input-field,
+  input[type="text"] {
+    font-size: 1rem !important;
+    min-height: 44px !important;
+  }
+}
+  </style>
 </head>
 
 <body>
+
   <div class="app-container">
 
     <!-- Header -->
@@ -102,6 +440,20 @@
               <option value="30">30 ثانية</option>
               <option value="45">45 ثانية</option>
               <option value="60" selected>60 ثانية</option>
+            </select>
+          </div>
+
+          <div class="settings-row">
+            <label class="settings-label" for="select-max-players">👥 الحد الأقصى للاعبين</label>
+            <select id="select-max-players" class="settings-select">
+              <option value="2">2 لاعبين</option>
+              <option value="4">4 لاعبين</option>
+              <option value="6">6 لاعبين</option>
+              <option value="8" selected>8 لاعبين</option>
+              <option value="10">10 لاعبين</option>
+              <option value="12">12 لاعباً</option>
+              <option value="16">16 لاعباً</option>
+              <option value="0">بلا حد</option>
             </select>
           </div>
 
