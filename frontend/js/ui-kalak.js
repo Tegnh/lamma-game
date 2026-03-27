@@ -7,34 +7,34 @@
 
   // ─── Team metadata (id → display info) ────────────────────────────────────
   const TEAM_META = {
-    red:    { label: 'الأحمر',  emoji: '🔴', color: '#ef4444', bg: 'rgba(239,68,68,0.1)'  },
-    blue:   { label: 'الأزرق',  emoji: '🔵', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
-    green:  { label: 'الأخضر',  emoji: '🟢', color: '#22c55e', bg: 'rgba(34,197,94,0.1)'  },
-    yellow: { label: 'الأصفر', emoji: '🟡', color: '#eab308', bg: 'rgba(234,179,8,0.1)'  },
+    red: { label: 'الأحمر', emoji: '🔴', color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
+    blue: { label: 'الأزرق', emoji: '🔵', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
+    green: { label: 'الأخضر', emoji: '🟢', color: '#22c55e', bg: 'rgba(34,197,94,0.1)' },
+    yellow: { label: 'الأصفر', emoji: '🟡', color: '#eab308', bg: 'rgba(234,179,8,0.1)' },
   };
 
   // ─── Category → Emoji map (single source of truth for all screens) ────────
   const CATEGORY_ICONS = {
-    'جغرافيا':       '🌍',
-    'حيوانات':       '🦁',
-    'علوم':          '🔬',
-    'فضاء':          '🚀',
-    'تاريخ':         '🏛️',
-    'فن':            '🎨',
-    'دين':           '🕌',
-    'أسئلة غريبة':  '👽',
-    'أعلام':         '🏳️',
-    'تكنولوجيا':    '💻',
+    'جغرافيا': '🌍',
+    'حيوانات': '🦁',
+    'علوم': '🔬',
+    'فضاء': '🚀',
+    'تاريخ': '🏛️',
+    'فن': '🎨',
+    'دين': '🕌',
+    'أسئلة غريبة': '👽',
+    'أعلام': '🏳️',
+    'تكنولوجيا': '💻',
     'كوارث طبيعية': '🌋',
-    'أمثال':         '📜',
-    'ألغاز':         '🧩',
-    'شخصيات':        '👤',
-    'لغة وأدب':     '📚',
-    'رياضة':         '⚽',
-    'طعام':          '🍕',
-    'موسيقى':        '🎵',
+    'أمثال': '📜',
+    'ألغاز': '🧩',
+    'شخصيات': '👤',
+    'لغة وأدب': '📚',
+    'رياضة': '⚽',
+    'طعام': '🍕',
+    'موسيقى': '🎵',
     'معلومات عامة': '💡',
-    'أسئلة عامة':  '🧠',
+    'أسئلة عامة': '🧠',
   };
 
   let currentRoom = null;
@@ -63,6 +63,8 @@
   function showScreen(screen) {
     $$('.phase-screen').forEach((s) => s.classList.remove('active'));
     screen.classList.add('active');
+    const leaveBtn = $('#btn-leave-room');
+    if (leaveBtn) leaveBtn.classList.toggle('hidden', screen === screenJoin);
   }
 
   async function init() {
@@ -70,7 +72,22 @@
       await client.connect();
       setupEventListeners();
       setupSocketListeners();
-      client.tryRestoreSession(); // attempt silent session recovery after listeners are ready
+
+      // Invite-link auto-join: kalak.html?room=XXXX
+      const urlCode = new URLSearchParams(window.location.search).get('room');
+      if (urlCode) {
+        const savedUsername = localStorage.getItem('lamma_username');
+        client.clearSession(); // drop any stale saved room
+        if (savedUsername) {
+          isSpectator = false;
+          client.joinRoom(urlCode.toUpperCase(), savedUsername, false);
+        } else {
+          // No username yet — pre-fill room code and let user complete the form
+          $('#input-room-code').value = urlCode.toUpperCase();
+        }
+      } else {
+        client.tryRestoreSession(); // normal session recovery
+      }
     } catch (err) {
       showToast('تعذّر الاتصال بالخادم. حاول لاحقاً.');
       console.error(err);
@@ -98,6 +115,12 @@
     $('#btn-next-round').addEventListener('click', () => client.nextRound());
     $('#btn-back-lobby').addEventListener('click', () => showScreen(screenLobby));
 
+    $('#btn-leave-room').addEventListener('click', () => {
+      if (!confirm('هل تريد مغادرة الغرفة؟')) return;
+      client.leaveRoom();
+      window.location.href = 'index.html';
+    });
+
     $('#btn-copy-code').addEventListener('click', () => {
       if (currentRoom) {
         navigator.clipboard.writeText(currentRoom.code).then(() => {
@@ -105,6 +128,15 @@
           setTimeout(() => $('#btn-copy-code').textContent = 'نسخ الكود', 2000);
         });
       }
+    });
+
+    $('#btn-copy-invite').addEventListener('click', () => {
+      if (!currentRoom) return;
+      const url = window.location.origin + '/?room=' + currentRoom.code;
+      navigator.clipboard.writeText(url).then(() => {
+        $('#btn-copy-invite').textContent = '✓ تم النسخ';
+        setTimeout(() => $('#btn-copy-invite').textContent = 'نسخ الرابط 🔗', 2000);
+      });
     });
 
     $('#setting-rounds').addEventListener('change', (e) => client.updateSettings({ totalRounds: Number(e.target.value) }));
@@ -548,7 +580,7 @@
         btn.textContent = opt.text;
         btn.dataset.answerId = opt.id;
 
-        if (opt.id === client.getMyId()) {
+        if ((opt.authors || []).includes(client.getMyId())) {
           btn.disabled = true;
           btn.title = 'لا يمكنك التصويت لإجابتك';
           btn.style.opacity = '0.4';
@@ -619,10 +651,9 @@
     data.answers.forEach((ans, ansIndex) => {
       const voterIds = votesByAnswer.get(ans.id) || [];
       const voteCount = voterIds.length;
-      const authorName = ans.author ? getPlayerName(ans.author) : 'الإجابة الصحيحة';
 
-      // Trickster: fake answer that fooled 2+ people
-      const isTrickster = !ans.isCorrect && voteCount >= 2;
+      // Trickster: fake answer (not a filler) that fooled 2+ people
+      const isTrickster = !ans.isCorrect && !ans.isFiller && voteCount >= 2;
 
       const div = document.createElement('div');
       div.className = `reveal-answer ${ans.isCorrect ? 'correct' : 'fake'}${isTrickster ? ' trickster' : ''}`;
@@ -644,8 +675,8 @@
         voterHtml = 'لا أحد صوّت لها';
       }
 
-      // Author earned points badge for fake answers that tricked people
-      const authorPtsBadge = (!ans.isCorrect && voteCount > 0)
+      // Author earned points badge (not for fillers)
+      const authorPtsBadge = (!ans.isCorrect && !ans.isFiller && voteCount > 0)
         ? `<span class="author-pts">+${voteCount}</span>`
         : '';
 
@@ -654,10 +685,25 @@
         ? `<span class="trickster-badge">🦊 خبير الخداع!</span>`
         : '';
 
+      // Author line
+      let authorLabel;
+      if (ans.isCorrect) {
+        authorLabel = '✅ الإجابة الصحيحة';
+      } else if (ans.isFiller) {
+        authorLabel = '🎲 خيار إضافي';
+      } else if (!ans.authors || ans.authors.length === 0) {
+        authorLabel = '✍️ —';
+      } else if (ans.authors.length === 1) {
+        authorLabel = `✍️ ${escapeHtml(getPlayerName(ans.authors[0]))} ${tricksterLabel}`;
+      } else {
+        const names = ans.authors.map(id => escapeHtml(getPlayerName(id))).join('، ');
+        authorLabel = `✍️ ${names} ${tricksterLabel}`;
+      }
+
       div.innerHTML = `
         <div>
           <div class="answer-text">${escapeHtml(ans.text)} ${authorPtsBadge}</div>
-          <div class="answer-label">${ans.isCorrect ? '✅ الإجابة الصحيحة' : `✍️ ${escapeHtml(authorName)} ${tricksterLabel}`}</div>
+          <div class="answer-label">${authorLabel}</div>
         </div>
         <div class="voters">${voterHtml}</div>
       `;
@@ -781,7 +827,7 @@
     const el = document.getElementById(id);
     if (!el) return;
     el.currentTime = 0;
-    el.play().catch(() => {}); // swallow autoplay policy errors silently
+    el.play().catch(() => { }); // swallow autoplay policy errors silently
   }
   // Expose globally so inline handlers can also call it
   window.playSound = playSound;

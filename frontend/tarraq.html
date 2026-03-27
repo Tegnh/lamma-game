@@ -546,6 +546,25 @@
       border: 2px solid #1A1A1A !important;
       box-shadow: 3px 3px 0px #1A1A1A !important;
     }
+
+    /* ── Leave Room Button ── */
+    .leave-btn {
+      background: #FF6B6B !important;
+      color: #1A1A1A !important;
+      border: 3px solid #1A1A1A !important;
+      box-shadow: 4px 4px 0px #1A1A1A !important;
+      border-radius: 12px !important;
+      padding: 6px 14px !important;
+      font-size: 0.82rem !important;
+      font-weight: 800 !important;
+      cursor: pointer !important;
+      margin-right: auto;
+    }
+    .leave-btn:hover {
+      transform: translate(-2px, -2px) !important;
+      box-shadow: 6px 6px 0px #1A1A1A !important;
+    }
+    .leave-btn.hidden { display: none !important; }
   </style>
 </head>
 
@@ -557,6 +576,7 @@
     <header class="app-header">
       <div class="app-logo">طرّاق 🔔</div>
       <div class="app-subtitle">اضغط الجرس أول وأجب قبل غيرك!</div>
+      <button id="btn-leave-room" class="leave-btn hidden">مغادرة 🚪</button>
     </header>
 
     <!-- ═══════════════════════════════ -->
@@ -609,8 +629,9 @@
 
         <div class="room-code" id="lobby-room-code">------</div>
 
-        <div style="text-align: center; margin-bottom: 1rem;">
+        <div style="text-align: center; margin-bottom: 1rem; display:flex; gap:0.5rem; justify-content:center;">
           <button id="btn-copy-code" class="copy-btn">نسخ الكود</button>
+          <button id="btn-copy-invite" class="copy-invite-btn">نسخ الرابط 🔗</button>
         </div>
 
         <div style="margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">

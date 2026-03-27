@@ -206,6 +206,51 @@ class RoomManager {
     return { success: true };
   }
 
+  // ─── Leave Room (voluntary) ────────────────────────────────────────────────
+
+  leaveRoom(code, playerId) {
+    const normalizedCode = code.toUpperCase().trim();
+    const room = this.rooms.get(normalizedCode);
+    if (!room) return { error: 'الغرفة غير موجودة' };
+    if (!room.players.has(playerId)) return { error: 'اللاعب غير موجود في الغرفة' };
+
+    const player = room.players.get(playerId);
+    if (player.gracePeriodTimer) clearTimeout(player.gracePeriodTimer);
+
+    if (player.socketId) {
+      this.socketToPlayer.delete(player.socketId);
+      const sock = this.io.sockets.sockets.get(player.socketId);
+      if (sock) sock.leave(normalizedCode);
+    }
+
+    room.players.delete(playerId);
+    this.syncSpectators(room);
+    this.syncActivePlayers(room);
+
+    if (room.players.size === 0) {
+      room.game.destroy();
+      this.rooms.delete(normalizedCode);
+      console.log(`[GC] Room ${normalizedCode} destroyed — last player left.`);
+      return { success: true };
+    }
+
+    if (room.hostId === playerId) {
+      const connected = this.getConnectedPlayers(room);
+      if (connected.length > 0) {
+        const oldest = connected.sort((a, b) => a.joinedAt - b.joinedAt)[0];
+        room.hostId = oldest.id;
+        this.io.to(normalizedCode).emit('room:host_transferred', {
+          newHostId: oldest.id,
+          username: oldest.username,
+        });
+        console.log(`[HOST] Host transferred to ${oldest.username} in room ${normalizedCode}.`);
+      }
+    }
+
+    this.broadcastRoomUpdate(room);
+    return { success: true };
+  }
+
   // ─── Kick Player ───────────────────────────────────────────────────────────
 
   kickPlayer(socket, code, targetId) {

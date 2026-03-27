@@ -39,6 +39,8 @@
   function showScreen(screen) {
     $$('.phase-screen').forEach((s) => s.classList.remove('active'));
     screen.classList.add('active');
+    const leaveBtn = $('#btn-leave-room');
+    if (leaveBtn) leaveBtn.classList.toggle('hidden', screen === screenJoin);
   }
 
   // ─── Boot ─────────────────────────────────────────────────────────────────
@@ -48,7 +50,21 @@
       await client.connect();
       setupEventListeners();
       setupSocketListeners();
-      client.tryRestoreSession();
+
+      // Invite-link auto-join: tarraq.html?room=XXXX
+      const urlCode = new URLSearchParams(window.location.search).get('room');
+      if (urlCode) {
+        const savedUsername = localStorage.getItem('lamma_username');
+        client.clearSession();
+        if (savedUsername) {
+          isSpectator = false;
+          client.joinRoom(urlCode.toUpperCase(), savedUsername, false);
+        } else {
+          $('#input-room-code').value = urlCode.toUpperCase();
+        }
+      } else {
+        client.tryRestoreSession();
+      }
     } catch (err) {
       showToast('تعذّر الاتصال بالخادم. حاول لاحقاً.');
       console.error(err);
@@ -80,6 +96,15 @@
       navigator.clipboard.writeText(currentRoom.code).then(() => {
         $('#btn-copy-code').textContent = 'تم النسخ ✓';
         setTimeout(() => $('#btn-copy-code').textContent = 'نسخ الكود', 2000);
+      });
+    });
+
+    $('#btn-copy-invite').addEventListener('click', () => {
+      if (!currentRoom) return;
+      const url = window.location.origin + '/?room=' + currentRoom.code;
+      navigator.clipboard.writeText(url).then(() => {
+        $('#btn-copy-invite').textContent = '✓ تم النسخ';
+        setTimeout(() => $('#btn-copy-invite').textContent = 'نسخ الرابط 🔗', 2000);
       });
     });
 
@@ -136,6 +161,12 @@
     $('#btn-back-lobby').addEventListener('click', () => {
       isInGame = false;
       showScreen(screenLobby);
+    });
+
+    $('#btn-leave-room').addEventListener('click', () => {
+      if (!confirm('هل تريد مغادرة الغرفة؟')) return;
+      client.leaveRoom();
+      window.location.href = 'index.html';
     });
 
     // Settings: keep local state in sync (used when host clicks Start)

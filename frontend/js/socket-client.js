@@ -174,6 +174,14 @@ class SocketClient {
     this.socket.emit('game:next_round', { code: this.roomCode });
   }
 
+  leaveRoom() {
+    if (!this.roomCode) return;
+    const code = this.roomCode;
+    this.socket.emit('room:leave', { code, playerId: this.playerId });
+    localStorage.removeItem('lamma_room_code');
+    this.roomCode = null;
+  }
+
   kickPlayer(targetId) {
     if (!this.roomCode) return;
     this.socket.emit('room:kick', { code: this.roomCode, targetId });

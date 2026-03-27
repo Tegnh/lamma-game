@@ -44,6 +44,7 @@ class KalakGame {
     this.votes = new Map();
     this.scores = new Map();
     this.correctGuessers = new Set();
+    this.votingOptionsMap = new Map(); // optionId → { text, authors: [], isFiller }
     this.spectatorIds = new Set();  // maintained by RoomManager
     this.activePlayers = new Set(); // maintained by RoomManager
 
@@ -245,6 +246,7 @@ class KalakGame {
     this.answers.clear();
     this.votes.clear();
     this.correctGuessers.clear();
+    this.votingOptionsMap.clear();
 
     this.clearTimers();
     this.setPhase(PHASES.ANSWERING);
@@ -274,6 +276,7 @@ class KalakGame {
     this.answers.clear();
     this.votes.clear();
     this.correctGuessers.clear();
+    this.votingOptionsMap.clear();
 
     this.clearTimers();
     this.setPhase(PHASES.ANSWERING);
@@ -340,12 +343,68 @@ class KalakGame {
   // ─── Voting Options & Reveal ───────────────────────────────────────────────
 
   buildVotingOptions() {
-    const options = [];
+    const TARGET_COUNT = this.settings.targetCount || 4;
     const correctId = 'correct_' + this.currentQuestion.id;
-    options.push({ id: correctId, text: this.currentQuestion.correctAnswer });
 
-    this.answers.forEach((answerObj, socketId) => {
-      options.push({ id: socketId, text: answerObj.text });
+    // ── rebuild the map from scratch ──────────────────────────────────────────
+    this.votingOptionsMap.clear();
+    this.votingOptionsMap.set(correctId, {
+      text: this.currentQuestion.correctAnswer,
+      authors: [],
+      isFiller: false,
+    });
+
+    // Merge fake answers: normalizedText → { displayText, authors[] }
+    const fakeGroups = new Map();
+    this.answers.forEach((answerObj, playerId) => {
+      const norm = normalizeArabicText(answerObj.text);
+      if (!fakeGroups.has(norm)) fakeGroups.set(norm, { text: answerObj.text, authors: [] });
+      fakeGroups.get(norm).authors.push(playerId);
+    });
+
+    let fakeIdx = 0;
+    fakeGroups.forEach(({ text, authors }) => {
+      this.votingOptionsMap.set('fake_' + fakeIdx++, { text, authors, isFiller: false });
+    });
+
+    // ── fill up to TARGET_COUNT with random distractors from the question bank ─
+    if (this.votingOptionsMap.size < TARGET_COUNT) {
+      const existingNorms = new Set(
+        [...this.votingOptionsMap.values()].map(o => normalizeArabicText(o.text))
+      );
+
+      const sameCatPool = allQuestions.filter(q =>
+        q.id !== this.currentQuestion.id &&
+        q.category === this.currentQuestion.category &&
+        !existingNorms.has(normalizeArabicText(q.correctAnswer))
+      );
+      const anyPool = allQuestions.filter(q =>
+        q.id !== this.currentQuestion.id &&
+        !existingNorms.has(normalizeArabicText(q.correctAnswer))
+      );
+
+      const candidates = shuffleArray(sameCatPool.length > 0 ? sameCatPool : anyPool);
+      let fillIdx = 0;
+      for (const q of candidates) {
+        if (this.votingOptionsMap.size >= TARGET_COUNT) break;
+        const norm = normalizeArabicText(q.correctAnswer);
+        if (existingNorms.has(norm)) continue;
+        existingNorms.add(norm);
+        this.votingOptionsMap.set('fill_' + fillIdx++, {
+          text: q.correctAnswer,
+          authors: [],
+          isFiller: true,
+        });
+      }
+    }
+
+    // ── build the emission array ───────────────────────────────────────────────
+    const options = [];
+    this.votingOptionsMap.forEach(({ text, authors, isFiller }, optId) => {
+      const opt = { id: optId, text, authors };
+      if (authors.length >= 2) { opt.isDuplicate = true; opt.count = authors.length; }
+      if (isFiller) opt.isFiller = true;
+      options.push(opt);
     });
 
     return shuffleArray(options);
@@ -367,9 +426,12 @@ class KalakGame {
         const current = roundScores.get(voterId) || 0;
         roundScores.set(voterId, current + 2);
       } else {
-        if (this.answers.has(answerId)) {
-          const current = roundScores.get(answerId) || 0;
-          roundScores.set(answerId, current + 1);
+        const vOpt = this.votingOptionsMap.get(answerId);
+        if (vOpt && !vOpt.isFiller) {
+          for (const authorId of vOpt.authors) {
+            const current = roundScores.get(authorId) || 0;
+            roundScores.set(authorId, current + 1);
+          }
         }
       }
     });
@@ -393,9 +455,14 @@ class KalakGame {
     this.votes.forEach((answerId, voterId) => voteDetails.push({ voterId, answerId }));
 
     const answersList = [];
-    answersList.push({ id: correctId, text: this.currentQuestion.correctAnswer, isCorrect: true, author: null });
-    this.answers.forEach((answerObj, socketId) => {
-      answersList.push({ id: socketId, text: answerObj.text, isCorrect: false, author: socketId });
+    this.votingOptionsMap.forEach(({ text, authors, isFiller }, optId) => {
+      answersList.push({
+        id: optId,
+        text,
+        isCorrect: optId === correctId,
+        isFiller,
+        authors,
+      });
     });
 
     return {
@@ -471,11 +538,12 @@ class KalakGame {
     if (isSpectator) return { error: 'المراقبون لا يمكنهم التصويت' };
     if (this.phase !== PHASES.VOTING) return { error: 'لا يمكنك التصويت في هذه المرحلة' };
     if (this.votes.has(socketId)) return { error: 'لقد صوّتَ بالفعل' };
-    if (answerId === socketId) return { error: 'لا يمكنك التصويت لإجابتك الخاصة' };
-
-    const correctId = 'correct_' + this.currentQuestion.id;
-    if (answerId !== correctId && !this.answers.has(answerId)) {
+    if (!this.votingOptionsMap.has(answerId)) {
       return { error: 'إجابة غير صالحة' };
+    }
+    const opt = this.votingOptionsMap.get(answerId);
+    if (opt.authors.includes(socketId)) {
+      return { error: 'لا يمكنك التصويت لإجابتك الخاصة' };
     }
 
     this.votes.set(socketId, answerId);
@@ -608,6 +676,7 @@ class KalakGame {
     this.votes.clear();
     this.scores.clear();
     this.correctGuessers.clear();
+    this.votingOptionsMap.clear();
     this.teamMap.clear();
     this.teamScores.clear();
     this.isTransitioning = false;
@@ -619,6 +688,7 @@ class KalakGame {
     this.votes.clear();
     this.scores.clear();
     this.correctGuessers.clear();
+    this.votingOptionsMap.clear();
     this.teamMap.clear();
     this.teamScores.clear();
     this.currentQuestion = null;

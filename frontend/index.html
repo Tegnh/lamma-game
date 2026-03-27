@@ -19,7 +19,24 @@
     <span class="eid-banner-text">عيد مبارك! وكل عام وأنتم بخير 🌙</span>
   </div>
   <!-- EID END -->
-  <div class="app-container">
+  <!-- Invite Join Panel (shown only when ?room= is in URL) -->
+  <div id="invite-panel" style="display:none; max-width:420px; margin:3rem auto; padding:0 1rem;">
+    <div class="card">
+      <div class="card-title" id="invite-title">جاري التحقق من الغرفة...</div>
+      <div id="invite-join-form" style="display:none;">
+        <div class="input-group" style="margin-bottom:1rem;">
+          <label class="input-label" for="invite-username">اسمك</label>
+          <input type="text" id="invite-username" class="input-field"
+            placeholder="أدخل اسمك..." maxlength="15" autocomplete="off" />
+        </div>
+        <button id="invite-join-btn" class="btn btn-primary btn-block btn-lg">انضمام 🚪</button>
+      </div>
+      <div id="invite-error" style="display:none; text-align:center; color:#e53e3e;
+           font-weight:700; margin-top:1rem;"></div>
+    </div>
+  </div>
+
+  <div class="app-container" id="main-content">
 
     <!-- Hero Section -->
     <div class="landing-hero">
@@ -56,6 +73,62 @@
     </div>
 
   </div>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const roomCode = params.get('room');
+      if (!roomCode) return;
+
+      // Hide main content, show invite panel
+      document.getElementById('main-content').style.display = 'none';
+      document.getElementById('invite-panel').style.display = 'block';
+
+      fetch('/api/room/' + encodeURIComponent(roomCode.toUpperCase()) + '/status')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          var titleEl = document.getElementById('invite-title');
+          var formEl  = document.getElementById('invite-join-form');
+          var errEl   = document.getElementById('invite-error');
+
+          if (!data.valid || data.status !== 'lobby') {
+            var msg = !data.valid ? 'الغرفة غير موجودة أو انتهت'
+                                  : 'اللعبة بدأت بالفعل، لا يمكن الانضمام الآن';
+            titleEl.textContent = '⚠️ الغرفة غير متاحة';
+            errEl.textContent = msg;
+            errEl.style.display = 'block';
+            setTimeout(function () { window.location.href = '/'; }, 3000);
+            return;
+          }
+
+          titleEl.textContent = 'انضم للغرفة 🎮';
+          formEl.style.display = 'block';
+
+          var btn = document.getElementById('invite-join-btn');
+          var inp = document.getElementById('invite-username');
+
+          // Pre-fill saved username if exists
+          var saved = localStorage.getItem('lamma_username');
+          if (saved) inp.value = saved;
+
+          function doJoin() {
+            var username = inp.value.trim();
+            if (!username) { inp.focus(); return; }
+            localStorage.setItem('lamma_username', username);
+            var page = data.gameType === 'tarraq' ? 'tarraq.html' : 'kalak.html';
+            window.location.href = page + '?room=' + encodeURIComponent(roomCode.toUpperCase());
+          }
+
+          btn.addEventListener('click', doJoin);
+          inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') doJoin(); });
+        })
+        .catch(function () {
+          document.getElementById('invite-title').textContent = '⚠️ تعذّر الاتصال';
+          document.getElementById('invite-error').textContent = 'تعذّر التحقق من الغرفة، حاول مجدداً.';
+          document.getElementById('invite-error').style.display = 'block';
+        });
+    }());
+  </script>
 </body>
 
 </html>

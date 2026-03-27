@@ -16,7 +16,7 @@ const PHASES = {
 const TIMINGS = {
   QUESTION: 15,
   BUZZED: 10,
-  SECOND_CHANCE: 7,
+  SECOND_CHANCE: 10,
   REVEAL: 3,
   SCORES: 3,
 };

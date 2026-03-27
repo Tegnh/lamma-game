@@ -23,6 +23,27 @@ const io = new Server(server, {
 
 const roomManager = new RoomManager(io);
 
+// ─── REST: Room Status ──────────────────────────────────────────────────────
+
+app.get('/api/room/:code/status', (req, res) => {
+  const code = req.params.code.toUpperCase().trim();
+  const room = roomManager.getRoom(code);
+
+  if (!room) return res.json({ valid: false });
+
+  const phase = room.game.phase;
+  const status = phase === 'LOBBY' ? 'lobby' : 'playing';
+  const gameType = room.game instanceof TarraqGame ? 'tarraq' : 'kalak';
+
+  res.json({
+    valid: true,
+    playerCount: room.players.size,
+    maxPlayers: room.maxPlayers || 0,
+    status,
+    gameType,
+  });
+});
+
 io.on('connection', (socket) => {
   console.log(`[CONNECT] ${socket.id}`);
 
@@ -198,6 +219,11 @@ io.on('connection', (socket) => {
   });
 
   // ─── Host Controls ─────────────────────────────────────────────────────────
+
+  socket.on('room:leave', ({ code, playerId }) => {
+    if (!code || !playerId) return;
+    roomManager.leaveRoom(code, playerId);
+  });
 
   socket.on('room:kick', ({ code, targetId }) => {
     if (!code || !targetId) {
