@@ -10,15 +10,15 @@
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/eid-theme.css" />
   <link rel="stylesheet" href="css/lamma-ui.css" />
+  <link rel="stylesheet" href="css/brand.css" />
+  <meta name="theme-color" content="#A8E6CF" />
+  <meta property="og:title" content="لمّة — منصة الألعاب الاجتماعية" />
+  <meta property="og:description" content="اجمع أصدقائك والعبوا ألعاب جماعية عربية على المتصفح، بدون تحميل وبدون تسجيل." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23A8E6CF'/%3E%3Ctext x='50' y='70' font-size='64' text-anchor='middle'%3E🎮%3C/text%3E%3C/svg%3E" />
   <script src="js/lamma-ui.js" defer></script>
 </head>
 
 <body>
-  <!-- EID START -->
-  <div class="eid-banner">
-    <span class="eid-banner-text">عيد مبارك! وكل عام وأنتم بخير 🌙</span>
-  </div>
-  <!-- EID END -->
   <!-- Invite Join Panel (shown only when ?room= is in URL) -->
   <div id="invite-panel" style="display:none; max-width:420px; margin:3rem auto; padding:0 1rem;">
     <div class="card">
@@ -36,41 +36,77 @@
     </div>
   </div>
 
-  <div class="app-container" id="main-content">
+  <div class="app-container wide" id="main-content">
 
-    <!-- Hero Section -->
-    <div class="landing-hero">
-      <h1>لمّة</h1>
-      <p>منصة الألعاب الاجتماعية — اجمع أصدقائك والعبوا مع بعض! 🎮</p>
+    <!-- Hero -->
+    <section class="hero">
+      <span class="sticker s1" aria-hidden="true">🎭</span>
+      <span class="sticker s2" aria-hidden="true">🔔</span>
+      <span class="sticker s3" aria-hidden="true">🧠</span>
+      <span class="sticker s4" aria-hidden="true">🏆</span>
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true">
+        <rect x="3" y="6" width="38" height="32" rx="12" fill="#A8E6CF" stroke="#1A1A1A" stroke-width="4"/>
+        <path d="M12 38 L10 52 L24 38 Z" fill="#A8E6CF" stroke="#1A1A1A" stroke-width="4" stroke-linejoin="round"/>
+        <rect x="23" y="22" width="38" height="30" rx="12" fill="#FFD3B6" stroke="#1A1A1A" stroke-width="4"/>
+        <path d="M52 52 L55 62 L42 52 Z" fill="#FFD3B6" stroke="#1A1A1A" stroke-width="4" stroke-linejoin="round"/>
+        <circle cx="35" cy="37" r="3" fill="#1A1A1A"/><circle cx="45" cy="37" r="3" fill="#1A1A1A"/><circle cx="55" cy="37" r="3" fill="#1A1A1A" opacity="0"/>
+      </svg>
+      <div class="hero-tag">ألعاب جماعية عربية 🇸🇦</div>
+      <h1 class="hero-title">لمّة</h1>
+      <p class="hero-sub">اجمع أصدقائك وعائلتك والعبوا مع بعض من أي مكان — بدون تحميل وبدون تسجيل!</p>
+      <div class="stats-row">
+        <span class="stat-chip">❓ +700 سؤال</span>
+        <span class="stat-chip">👥 2 – 8 لاعبين</span>
+        <span class="stat-chip">⚡ مباشر وفوري</span>
+      </div>
+    </section>
+
+    <!-- Games -->
+    <h2 class="section-title">🎮 اختر لعبتك</h2>
+    <div class="games-grid">
+
+      <a href="kalak.html" class="game-tile tile-kalak" id="game-card-kalak">
+        <div class="tile-banner">
+          <div class="tile-icon" aria-hidden="true">🎭</div>
+          <span class="tile-players">2 – 8 لاعبين</span>
+        </div>
+        <div class="tile-body">
+          <div class="tile-title">خَرّاط</div>
+          <div class="tile-desc">اكتب إجابة مزيفة مقنعة، وخلّي أصحابك يصدّقونها بدل الجواب الصحيح!</div>
+          <div class="tile-tags"><span class="tag">🤥 خداع</span><span class="tag">🗳️ تصويت</span><span class="tag">😂 ضحك</span></div>
+          <div class="tile-cta">العب الآن <span aria-hidden="true">←</span></div>
+        </div>
+      </a>
+
+      <a href="tarraq.html" class="game-tile tile-tarraq" id="game-card-tarraq">
+        <div class="tile-banner">
+          <div class="tile-icon" aria-hidden="true">🔔</div>
+          <span class="tile-players">2 – 8 لاعبين</span>
+        </div>
+        <div class="tile-body">
+          <div class="tile-title">طرّاق</div>
+          <div class="tile-desc">اضغط الجرس قبل الجميع وجاوب السؤال — السرعة والمعلومة هما الفيصل!</div>
+          <div class="tile-tags"><span class="tag">⚡ سرعة</span><span class="tag">🧠 معلومات</span><span class="tag">🏁 تنافس</span></div>
+          <div class="tile-cta">العب الآن <span aria-hidden="true">←</span></div>
+        </div>
+      </a>
+
+      <div class="tile-soon">
+        <span class="soon-icon" aria-hidden="true">🔮</span>
+        <strong>ألعاب جديدة قريباً</strong>
+        <span>نجهّز لكم مفاجآت — اقترح لعبتك من زر 💡 بالأسفل!</span>
+      </div>
     </div>
 
-    <!-- Game Cards -->
-    <a href="kalak.html" class="game-card" id="game-card-kalak" style="text-decoration: none;">
-      <div class="game-card-icon">🎭</div>
-      <div class="game-card-title">خَرّاط</div>
-      <div class="game-card-desc">
-        اكتب إجابة مزيفة وخلّي الباقي يصدّقوك!
-        <br />
-        <small style="color: var(--text-muted);">2 - 8 لاعبين</small>
-      </div>
-    </a>
-
-    <a href="tarraq.html" class="game-card" id="game-card-tarraq" style="text-decoration: none;">
-      <div class="game-card-icon">🔔</div>
-      <div class="game-card-title" style="color: #ff6b00;">طرّاق</div>
-      <div class="game-card-desc" style="color: var(--text-primary);">
-        اضغط الجرس قبل الجميع!
-        <br />
-        <small style="color: var(--text-muted);">2 - 8 لاعبين</small>
-      </div>
-    </a>
-
-    <!-- Coming Soon -->
-    <div class="game-card" style="opacity: 0.4; cursor: not-allowed;">
-      <div class="game-card-icon">🔮</div>
-      <div class="game-card-title">قريباً...</div>
-      <div class="game-card-desc">ألعاب جديدة في الطريق!</div>
+    <!-- How it works -->
+    <h2 class="section-title">🚀 كيف تبدأ؟</h2>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-text"><strong>أنشئ غرفة</strong><span>اختر اللعبة وضع اسمك</span></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text"><strong>شارك الكود</strong><span>أرسل رابط الدعوة لأصحابك</span></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text"><strong>ابدأوا اللعب</strong><span>3 لاعبين أو أكثر وتبدأ اللمّة</span></div></div>
     </div>
+
+    <footer class="brand-footer">صُنع بـ ❤️ للّمّات العربية · <b>لمّة</b></footer>
 
   </div>
 

@@ -128,8 +128,12 @@
               <div style="font-size:0.8rem;color:#444;margin-top:4px;">اضغط الجرس أول من الجميع وأجب على الأسئلة.</div>
             </div>
             <div style="background:#FFD3B6;border:2px solid #1A1A1A;border-radius:10px;padding:12px;">
-              <div style="font-weight:800;font-size:0.9rem;color:#1A1A1A;">⚙️ تحديث الإعدادات</div>
-              <div style="font-size:0.8rem;color:#444;margin-top:4px;">الآن يمكنك تخصيص عدد اللاعبين في الغرفة.</div>
+              <div style="font-weight:800;font-size:0.9rem;color:#1A1A1A;">🧠 +180 سؤال جديد</div>
+              <div style="font-size:0.8rem;color:#444;margin-top:4px;">أسئلة جديدة في اللعبتين مع تصنيفات جديدة: طعام، سينما وترفيه، رياضة.</div>
+            </div>
+            <div style="background:#FFE66D;border:2px solid #1A1A1A;border-radius:10px;padding:12px;">
+              <div style="font-weight:800;font-size:0.9rem;color:#1A1A1A;">🎨 هوية جديدة للمنصة</div>
+              <div style="font-size:0.8rem;color:#444;margin-top:4px;">واجهة أوضح وأمرح، ودعم أفضل للوضع الليلي.</div>
             </div>
             <div class="lamma-empty-state">المزيد من التحديثات قريباً! 🚀</div>
           </div>
